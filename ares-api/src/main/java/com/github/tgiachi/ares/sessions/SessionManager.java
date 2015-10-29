@@ -14,18 +14,9 @@ public class SessionManager {
     @Getter @Setter
     private static IAresEngine engine;
 
-
-    @Getter @Setter
-    private static String rootDirectory;
-
-
-    @Getter @Setter
-    private static String appDirectory;
-
-    @Getter @Setter
-    private static String appConfigDirectory;
-
-
     @Getter @Setter
     private static AresConfig config;
+
+    @Getter @Setter
+    private static DirectoriesConfig directoriesConfig;
 }
