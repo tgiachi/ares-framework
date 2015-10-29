@@ -40,7 +40,10 @@ public class DatabaseManager implements IDatabaseManager {
             mDatasource = new ComboPooledDataSource();
             mDatasource.setJdbcUrl(SessionManager.getConfig().getDatabaseConfig().getUrl());
             mDatasource.setUser(SessionManager.getConfig().getDatabaseConfig().getUsername());
-            mDatasource.setPassword(SessionManager.getConfig().getDatabaseConfig().getPassword());
+
+            if (!SessionManager.getConfig().getDatabaseConfig().getPassword().equals(""))
+                mDatasource.setPassword(SessionManager.getConfig().getDatabaseConfig().getPassword());
+
             mDatasource.setDriverClass(SessionManager.getConfig().getDatabaseConfig().getDriverClass());
 
 
