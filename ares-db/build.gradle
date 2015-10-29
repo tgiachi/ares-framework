@@ -1,0 +1,14 @@
+
+apply plugin: 'java'
+
+
+repositories {
+
+    jcenter()
+}
+
+
+dependencies {
+    compile "com.mchange:c3p0:$c3p0Version"
+    compile "org.postgresql:postgresql:$postgresVersion"
+}
