@@ -10,6 +10,8 @@ public class EngineConst {
     public static String ARES_APP_NAME = "ares.application.name";
 
     public static String DEFAULT_CONFIG_DIRECTORY = "config";
+    public static String DEFAULT_TEMPLATE_DIRECTORY = "templates";
+
 
 
     public static String getAresBasedirectory()

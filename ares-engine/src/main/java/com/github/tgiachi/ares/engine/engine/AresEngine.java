@@ -47,33 +47,35 @@ public class AresEngine implements IAresEngine {
         try
         {
 
+            SessionManager.getDirectoriesConfig().setRootDirectory(EngineConst.getAresBasedirectory());
+            SessionManager.getDirectoriesConfig().setAppDirectory(EngineConst.getAresBasedirectory() + File.separator + EngineConst.getAresAppName());
+            SessionManager.getDirectoriesConfig().setAppConfigDirectory(SessionManager.getDirectoriesConfig().getAppDirectory() + File.separator + EngineConst.DEFAULT_CONFIG_DIRECTORY + File.separator);
+            SessionManager.getDirectoriesConfig().setTemplateDirectory(SessionManager.getDirectoriesConfig().getAppDirectory() + File.separator + EngineConst.DEFAULT_TEMPLATE_DIRECTORY);
 
-            SessionManager.setRootDirectory(EngineConst.getAresBasedirectory());
-            SessionManager.setAppDirectory(EngineConst.getAresBasedirectory() + File.separator + EngineConst.getAresAppName());
-            SessionManager.setAppConfigDirectory(SessionManager.getAppDirectory() + File.separator + EngineConst.DEFAULT_CONFIG_DIRECTORY + File.separator);
 
-            configFilename = SessionManager.getAppConfigDirectory() + "aresframework.conf";
+
+            configFilename = SessionManager.getDirectoriesConfig().getAppConfigDirectory() + "aresframework.conf";
 
 
             log(Level.DEBUG, "Current config file is %s", configFilename);
 
-            if (!new File(SessionManager.getRootDirectory()).exists())
+            if (!new File(SessionManager.getDirectoriesConfig().getRootDirectory()).exists())
             {
                 log(Level.WARN, "Creating base directory: %s", EngineConst.getAresBasedirectory());
-                new File(SessionManager.getRootDirectory()).mkdirs();
+                new File(SessionManager.getDirectoriesConfig().getRootDirectory()).mkdirs();
             }
 
-            if (!new File(SessionManager.getAppDirectory()).exists())
+            if (!new File(SessionManager.getDirectoriesConfig().getAppDirectory()).exists())
             {
-                log(Level.WARN, "Creating app directory: %s", SessionManager.getAppDirectory());
-                new File(SessionManager.getAppDirectory()).mkdirs();
+                log(Level.WARN, "Creating app directory: %s", SessionManager.getDirectoriesConfig().getAppDirectory());
+                new File(SessionManager.getDirectoriesConfig().getAppDirectory()).mkdirs();
             }
 
 
-            if (!new File(SessionManager.getAppConfigDirectory()).exists())
+            if (!new File(SessionManager.getDirectoriesConfig().getAppConfigDirectory()).exists())
             {
-                log(Level.WARN, "Creating app config directory: %s", SessionManager.getAppConfigDirectory());
-                new File(SessionManager.getAppConfigDirectory()).mkdirs();
+                log(Level.WARN, "Creating app config directory: %s", SessionManager.getDirectoriesConfig().getAppConfigDirectory());
+                new File(SessionManager.getDirectoriesConfig().getAppConfigDirectory()).mkdirs();
             }
 
 
