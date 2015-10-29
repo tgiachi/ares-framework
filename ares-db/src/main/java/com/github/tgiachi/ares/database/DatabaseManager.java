@@ -33,7 +33,6 @@ public class DatabaseManager implements IDatabaseManager {
 
     }
 
-
     private void initConnection()
     {
         try
