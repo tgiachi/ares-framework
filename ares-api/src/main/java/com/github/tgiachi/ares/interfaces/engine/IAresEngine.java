@@ -1,5 +1,6 @@
 package com.github.tgiachi.ares.interfaces.engine;
 
+import com.github.tgiachi.ares.interfaces.container.IAresContainer;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.fs.IFileSystemManager;
@@ -15,6 +16,7 @@ public interface IAresEngine {
 
     IAresDispacher getDispacher();
 
+    IAresContainer getContainer();
 
     /**
      * Esegue la partenza dell'engine

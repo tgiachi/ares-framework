@@ -3,10 +3,12 @@ package com.github.tgiachi.ares.engine.engine;
 import com.github.tgiachi.ares.annotations.AresDatabaseManager;
 import com.github.tgiachi.ares.annotations.AresFileSystemManager;
 import com.github.tgiachi.ares.data.config.AresConfig;
+import com.github.tgiachi.ares.engine.container.AresContainer;
 import com.github.tgiachi.ares.engine.dispacher.DefaultDispacher;
 import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
 import com.github.tgiachi.ares.engine.serializer.JsonSerializer;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
+import com.github.tgiachi.ares.interfaces.container.IAresContainer;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
@@ -37,6 +39,9 @@ public class AresEngine implements IAresEngine {
     @Getter
     private IAresDispacher dispacher;
 
+    @Getter
+    private IAresContainer container;
+
 
     private String configFilename;
 
@@ -46,8 +51,15 @@ public class AresEngine implements IAresEngine {
 
         loadConfig();
         initComponents();
+        initContainer();
 
         loadDefaultDispacher();
+    }
+
+    private void initContainer()
+    {
+        container = new AresContainer();
+        container.scanForBeans();
     }
 
     private void loadDefaultDispacher() {
