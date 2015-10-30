@@ -2,9 +2,16 @@ package com.github.tgiachi.ares.engine.reflections;
 
 
 
+import org.reflections.Configuration;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
@@ -23,5 +30,10 @@ public class ReflectionUtils {
         //else
         //    return new Reflections(JclContext.get(), "com").getTypesAnnotatedWith(type);
         return null;
+    }
+
+    public static Set<Method> getMethods(Class<? extends Annotation> annotation)
+    {
+        return new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage("com")).addScanners(new TypeAnnotationsScanner(), new MethodAnnotationsScanner())).getMethodsAnnotatedWith(annotation);
     }
 }

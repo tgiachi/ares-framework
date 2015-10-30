@@ -15,4 +15,6 @@ public class TemplateResult implements Serializable {
     private boolean error;
 
     private String errorString;
+
+    private long generationTime;
 }

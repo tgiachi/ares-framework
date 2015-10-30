@@ -1,5 +1,17 @@
+buildscript {
+    repositories {
+        jcenter()
+
+    }
+
+    dependencies {
+        classpath 'org.akhikhl.gretty:gretty:+'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'war'
+apply plugin: 'org.akhikhl.gretty'
 
 
 
@@ -8,8 +20,17 @@ repositories {
     jcenter()
 }
 
+gretty {
+    def userHome = System.getProperty("user.home")
+
+    servletContainer = 'tomcat8'
+
+    jvmArgs = ["-Dares.base.directory=$userHome/ares","-Dares.application.name=testframework"]
+}
 
 dependencies {
 
 
 }
+
+

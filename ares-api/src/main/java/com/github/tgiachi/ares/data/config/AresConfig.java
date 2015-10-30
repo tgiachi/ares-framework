@@ -20,6 +20,8 @@ public class AresConfig implements Serializable
 
     private AresDatabaseConfig databaseConfig = new AresDatabaseConfig();
 
+    private AresTemplateConfig templateConfig = new AresTemplateConfig();
+
     private String databaseManager = "com.github.tgiachi.ares.database.DatabaseManager";
 
     private String filesystemManager = "com.github.tgiachi.ares.engine.filesystem.FileSystemManager";

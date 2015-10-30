@@ -1,6 +1,7 @@
 package com.github.tgiachi.ares.database;
 
 import com.github.tgiachi.ares.annotations.AresDatabaseManager;
+import com.github.tgiachi.ares.data.db.AresQuery;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -81,5 +82,34 @@ public class DatabaseManager implements IDatabaseManager {
     protected void log(Level level, String text, Object ... args)
     {
         logger.log(level, String.format(text, args));
+    }
+
+    @Override
+    public AresQuery getNewQuery() {
+        AresQuery aresQuery = new AresQuery();
+        try {
+            aresQuery.setConnection(mDatasource.getConnection());
+            aresQuery.setQuery(aresQuery.getConnection().createStatement());
+
+        }
+        catch (Exception ex)
+        {
+            log(Level.FATAL, "Error during get new query => %s", ex.getMessage());
+        }
+
+        return aresQuery;
+    }
+
+    @Override
+    public void disposeQuery(AresQuery query) {
+
+        try {
+            query.getQuery().closeOnCompletion();
+            query.getConnection().close();
+        }
+        catch (Exception ex)
+        {
+            log(Level.FATAL, "Error during close query => %s", ex.getMessage());
+        }
     }
 }
