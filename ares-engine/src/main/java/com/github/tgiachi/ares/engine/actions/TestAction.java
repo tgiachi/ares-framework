@@ -6,7 +6,11 @@ import com.github.tgiachi.ares.annotations.actions.RequestType;
 import com.github.tgiachi.ares.data.actions.AresViewBag;
 import com.github.tgiachi.ares.data.db.AresQuery;
 import com.github.tgiachi.ares.data.template.DataModel;
+import com.github.tgiachi.ares.data.template.JsonResult;
+import com.github.tgiachi.ares.data.template.XmlResult;
+import com.github.tgiachi.ares.data.template.YamlResult;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
+import com.github.tgiachi.ares.sessions.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +29,24 @@ public class TestAction implements IAresAction {
         model.addAttribute("title", "Today is " + new Date().toString());
 
         return new AresViewBag("index.tpl", model);
+    }
+
+    @MapRequest(path = "/api/data.json", type = RequestType.GET)
+    public JsonResult doTestJson(DataModel model)
+    {
+        return new JsonResult(SessionManager.getConfig());
+    }
+
+    @MapRequest(path = "/api/data.xml", type = RequestType.GET)
+    public XmlResult doTestXml(DataModel model)
+    {
+        return new XmlResult(SessionManager.getConfig());
+    }
+
+    @MapRequest(path = "/api/data.yaml", type = RequestType.GET)
+    public YamlResult doTestYaml(DataModel model)
+    {
+        return new YamlResult(SessionManager.getConfig());
     }
 
     @MapRequest(path = "/pluto.html", type = RequestType.GET)

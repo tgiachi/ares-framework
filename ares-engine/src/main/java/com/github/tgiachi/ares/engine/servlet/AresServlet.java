@@ -36,21 +36,22 @@ public class AresServlet extends HttpServlet {
 
     }
 
+
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
         String request_url = req.getRequestURI().replace(req.getContextPath() , "");
-        log("Context path is " + req.getContextPath() );
 
-        log("Request is " + req.getRequestURI());
+        log(String.format("[%s] - GET - %s", req.getRemoteAddr(), request_url));
         ServletResult result =  SessionManager.getEngine().getDispacher().dispach(request_url, RequestType.GET, parseHeaders(req), parseQueryString(req.getQueryString()));
 
 
         resp.setContentType(result.getMimeType());
         PrintWriter out = resp.getWriter();
 
-        out.print(new String(result.getResult().getResult()));
+        out.print((String)result.getResult());
 
     }
 

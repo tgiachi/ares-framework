@@ -3,24 +3,27 @@ package com.github.tgiachi.ares.engine.dispacher;
 import com.github.tgiachi.ares.annotations.actions.AresAction;
 import com.github.tgiachi.ares.annotations.actions.MapRequest;
 import com.github.tgiachi.ares.annotations.actions.RequestType;
+import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
 import com.github.tgiachi.ares.data.actions.AresViewBag;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.db.AresQuery;
-import com.github.tgiachi.ares.data.template.DataModel;
-import com.github.tgiachi.ares.data.template.TemplateResult;
+import com.github.tgiachi.ares.data.template.*;
 import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
+import com.github.tgiachi.ares.engine.serializer.JsonSerializer;
+import com.github.tgiachi.ares.engine.serializer.XmlSerializer;
+import com.github.tgiachi.ares.engine.serializer.YAMLSerializer;
+import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
+import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
 import com.google.common.base.Stopwatch;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +37,8 @@ public class DefaultDispacher implements IAresDispacher {
 
     private HashMap<MapRequest, Method> mActionMethods = new HashMap<>();
 
+    private HashMap<Class<?>, IResultParser> mResultsParsers = new HashMap<>();
+
     private IAresEngine engine;
 
     public DefaultDispacher(IAresEngine engine)
@@ -45,6 +50,35 @@ public class DefaultDispacher implements IAresDispacher {
 
         buildActionMethods();
 
+        buildResultsParsers();
+
+
+    }
+
+    private void buildResultsParsers() {
+
+        try
+        {
+            Set<Class<?>> classes = ReflectionUtils.getAnnotation(AresResultParser.class);
+
+            log(Level.INFO, "Found %s result parsers", classes.size());
+
+            for (Class<?> classz : classes)
+            {
+                IResultParser parser = (IResultParser)classz.newInstance();
+                AresResultParser annotation = classz.getAnnotation(AresResultParser.class);
+
+                parser.init(engine);
+
+                mResultsParsers.put(annotation.value(), parser);
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            log(Level.FATAL, "Error during scan results Parsers => %s", ex.getMessage());
+        }
 
     }
 
@@ -105,74 +139,63 @@ public class DefaultDispacher implements IAresDispacher {
     @Override
     public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values)
     {
-        ServletResult Sresult = new ServletResult();
+        ServletResult servletResult = new ServletResult();
         Optional<MapRequest> key = mActionMethods.keySet().parallelStream().filter(s -> s.type() == type && s.path().equals(action)).findFirst();
 
-        if (key.isPresent())
-        {
+        if (key.isPresent()) {
             Method m = mActionMethods.get(key.get());
             DataModel model = new DataModel();
             model.addAttribute("request_type", type);
             model.addAttribute("headers", headers);
             model.addAttribute("values", values);
+            model.addAttribute("invoke_generation_time", 0);
+            model.addAttribute("gitproperties", AppInfo.gitProperties);
+            model.addAttribute("appname", AppInfo.AppName);
+            model.addAttribute("appversion", AppInfo.AppVersion);
 
             try {
 
                 AresAction aresAction = m.getDeclaringClass().getAnnotation(AresAction.class);
+                AresQuery query;
 
                 IAresAction invoker = mActions.get(aresAction.name());
+                List<Object> invokerParams = new ArrayList<>();
 
-                if (m.getParameterTypes().length == 2)
-                {
+                for (Class<?> c : m.getParameterTypes()) {
 
-                    AresQuery query = engine.getDatabaseManager().getNewQuery();
+                    if (c.equals(DataModel.class))
+                        invokerParams.add(model);
+                    else if (c.equals(AresQuery.class)) {
+                        query = engine.getDatabaseManager().getNewQuery();
+                        invokerParams.add(query);
+                    }
 
-                    Stopwatch sw = Stopwatch.createStarted();
+                }
 
+                Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(m.getReturnType())).findFirst());
 
-                    AresViewBag bag = (AresViewBag) m.invoke(invoker, model, query);
+                if (resultKey.isPresent()) {
+                    IResultParser parser = mResultsParsers.get(resultKey.get());
 
-                    sw.stop();
-
-                    model.addAttribute("invoke_generation_time", sw.elapsed(TimeUnit.MICROSECONDS));
-
-
-
-                    TemplateResult result = engine.getFileSystemManager().getTemplate(bag.getViewPage(), bag.getModel());
-
-                    Sresult.setResult(result);
-
-                    engine.getDatabaseManager().disposeQuery(query);
-                    model.addAttribute("template_generation_time", result.getGenerationTime());
+                    try {
+                        servletResult = parser.parse(model, m, invoker, invokerParams.toArray());
+                    } catch (Exception ex) {
+                        log(Level.FATAL, "Error during call result parsers %s ==> %s", parser.getClass(), ex.getMessage());
+                    }
 
 
                 }
-                else {
-
-                    Stopwatch sw = Stopwatch.createStarted();
-                    AresViewBag bag = (AresViewBag) m.invoke(invoker, model);
-                    sw.stop();
-
-                    model.addAttribute("invoke_generation_time", sw.elapsed(TimeUnit.MICROSECONDS));
-
-                    log(Level.INFO, "Bag is %s ", bag);
-
-                    TemplateResult result = engine.getFileSystemManager().getTemplate(bag.getViewPage(), bag.getModel());
-                    model.addAttribute("template_generation_time", result.getGenerationTime());
-
-                    Sresult.setResult(result);
-                }
-
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
             }
+            catch (Exception ex)
+            {
 
-
+            }
         }
 
-        return Sresult;
+
+
+
+        return servletResult;
 
     }
 

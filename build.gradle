@@ -1,6 +1,15 @@
 apply plugin: 'java'
 
-
+// Pull the plugin from Maven Central
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.saliman:gradle-properties-plugin:1.4.4'
+    }
+}
+apply plugin: 'net.saliman.properties'
 
 project.ext {
 
@@ -12,8 +21,11 @@ project.ext {
     c3p0Version = '0.9.5.1'
     reflectionVersion = '0.9.10'
     gsonVersion = '2.4'
+    xstreamVersion = '1.4.8'
+    dom4jVersion = '1.6.1'
     commonsIoVersion = '2.4'
     postgresVersion = '9.4-1204-jdbc42'
+    yamlVersion = '1.16'
 }
 
 
@@ -23,6 +35,9 @@ repositories {
     mavenCentral()
 }
 
+group="com.github.aresframework"
+version="0.5.0-Alpha"
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -31,6 +46,7 @@ targetCompatibility = 1.8
 allprojects {
 
     apply plugin: 'java'
+    apply plugin: 'net.saliman.properties'
 
     dependencies {
         compile "org.projectlombok:lombok:$lombokVersion"

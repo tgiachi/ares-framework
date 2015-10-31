@@ -53,7 +53,6 @@ public class FileSystemManager implements IFileSystemManager {
 
            logger.info(String.format("Created %s templates directory", SessionManager.getDirectoriesConfig().getTemplateDirectory()));
 
-
        }
     }
 
@@ -62,13 +61,13 @@ public class FileSystemManager implements IFileSystemManager {
         TemplateResult result = new TemplateResult();
         try
         {
-            result.setResult(FileUtils.readFileToByteArray(new File(filename)));
+            result.setResult(FileUtils.readFileToString(new File(filename)));
         }
         catch (Exception ex)
         {
             result.setError(true);
             result.setErrorString(ex.getMessage());
-            result.setResult("".getBytes());
+            result.setResult("");
         }
 
         return result;
@@ -136,7 +135,7 @@ public class FileSystemManager implements IFileSystemManager {
                 Template template = mTemplateConfiguration.getTemplate(filename);
                 template.process(model.getDataMap(), sw);
 
-                result.setResult(sw.toString().getBytes());
+                result.setResult(sw.toString());
             } catch (TemplateException ex) {
                 log(Level.FATAL, "Error during get template %s => %s", filename, ex.getMessage());
                 result.setError(true);

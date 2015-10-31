@@ -1,4 +1,8 @@
 
+plugins {
+    id "com.gorylenko.gradle-git-properties" version "1.4.7"
+}
+
 apply plugin: 'java'
 
 // In this section you declare where to find the dependencies of your project
@@ -7,6 +11,9 @@ repositories {
     jcenter()
 }
 
+gitProperties {
+    gitPropertiesDir = new File("${project.buildDir}/classes/main/resources")
+}
 
 dependencies {
 
@@ -16,5 +23,10 @@ dependencies {
     compile "org.freemarker:freemarker:$freemakerVersion"
     compile "org.reflections:reflections:$reflectionVersion"
     compile "com.google.code.gson:gson:$gsonVersion"
+    compile "com.thoughtworks.xstream:xstream:$xstreamVersion"
+    compile "dom4j:dom4j:$dom4jVersion"
+    compile "org.yaml:snakeyaml:$yamlVersion"
+
+
 
 }

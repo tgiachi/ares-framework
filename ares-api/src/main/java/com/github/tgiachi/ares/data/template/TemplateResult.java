@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 public class TemplateResult implements Serializable {
 
-    private byte[] result;
+    private String result;
 
     private boolean error;
 
