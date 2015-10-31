@@ -14,4 +14,6 @@ public interface IDatabaseManager extends IAresManager {
 
     void disposeQuery(AresQuery query);
 
+    void shutdown();
+
 }

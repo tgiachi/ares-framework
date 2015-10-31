@@ -45,7 +45,7 @@ public class AresServlet extends HttpServlet {
         String request_url = req.getRequestURI().replace(req.getContextPath() , "");
 
         log(String.format("[%s] - GET - %s", req.getRemoteAddr(), request_url));
-        ServletResult result =  SessionManager.getEngine().getDispacher().dispach(request_url, RequestType.GET, parseHeaders(req), parseQueryString(req.getQueryString()));
+        ServletResult result =  SessionManager.getEngine().getDispacher().dispach(request_url, RequestType.GET, parseHeaders(req), parseQueryString(req.getQueryString()),req);
 
 
         resp.setContentType(result.getMimeType());
@@ -57,22 +57,23 @@ public class AresServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.POST, parseHeaders(req),parseQueryString(req.getQueryString()));
+
+        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.POST, parseHeaders(req),parseQueryString(req.getQueryString()),req);
     }
 
     @Override
     protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.HEAD, parseHeaders(req), parseQueryString(req.getQueryString()));
+        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.HEAD, parseHeaders(req), parseQueryString(req.getQueryString()),req);
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.DELETE, parseHeaders(req), parseQueryString(req.getQueryString()));
+        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.DELETE, parseHeaders(req), parseQueryString(req.getQueryString()),req);
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.PUT, parseHeaders(req), new HashMap<>());
+        SessionManager.getEngine().getDispacher().dispach(req.getRequestURI(), RequestType.PUT, parseHeaders(req), new HashMap<>(),req);
     }
 
     protected HashMap<String, String> parseQueryString(String queryString)

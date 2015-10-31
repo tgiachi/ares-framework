@@ -18,9 +18,12 @@ import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
 import com.google.common.base.Stopwatch;
+import com.sun.deploy.net.HttpRequest;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -137,7 +140,7 @@ public class DefaultDispacher implements IAresDispacher {
     }
 
     @Override
-    public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values)
+    public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
     {
         ServletResult servletResult = new ServletResult();
         Optional<MapRequest> key = mActionMethods.keySet().parallelStream().filter(s -> s.type() == type && s.path().equals(action)).findFirst();
@@ -152,6 +155,8 @@ public class DefaultDispacher implements IAresDispacher {
             model.addAttribute("gitproperties", AppInfo.gitProperties);
             model.addAttribute("appname", AppInfo.AppName);
             model.addAttribute("appversion", AppInfo.AppVersion);
+            model.addAttribute("session", request.getSession());
+
 
             try {
 
@@ -159,6 +164,8 @@ public class DefaultDispacher implements IAresDispacher {
                 AresQuery query;
 
                 IAresAction invoker = mActions.get(aresAction.name());
+                engine.getContainer().resolveWires(invoker);
+
                 List<Object> invokerParams = new ArrayList<>();
 
                 for (Class<?> c : m.getParameterTypes()) {
@@ -169,13 +176,19 @@ public class DefaultDispacher implements IAresDispacher {
                         query = engine.getDatabaseManager().getNewQuery();
                         invokerParams.add(query);
                     }
+                    else if (c.equals(HttpSession.class))
+                        invokerParams.add(request.getSession());
 
                 }
+
+
 
                 Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(m.getReturnType())).findFirst());
 
                 if (resultKey.isPresent()) {
                     IResultParser parser = mResultsParsers.get(resultKey.get());
+                    engine.getContainer().resolveWires(parser);
+
 
                     try {
                         servletResult = parser.parse(model, m, invoker, invokerParams.toArray());

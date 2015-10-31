@@ -18,8 +18,12 @@ public interface IAresEngine {
 
     IAresContainer getContainer();
 
+
+
     /**
      * Esegue la partenza dell'engine
      */
     void start();
+
+    void shutdown();
 }

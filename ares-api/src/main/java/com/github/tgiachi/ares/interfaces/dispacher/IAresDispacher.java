@@ -3,6 +3,7 @@ package com.github.tgiachi.ares.interfaces.dispacher;
 import com.github.tgiachi.ares.annotations.actions.RequestType;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,5 +12,5 @@ import java.util.List;
  */
 public interface IAresDispacher {
 
-    ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values);
+    ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request);
 }

@@ -3,6 +3,7 @@ package com.github.tgiachi.ares.engine.actions;
 import com.github.tgiachi.ares.annotations.actions.AresAction;
 import com.github.tgiachi.ares.annotations.actions.MapRequest;
 import com.github.tgiachi.ares.annotations.actions.RequestType;
+import com.github.tgiachi.ares.annotations.container.AresInject;
 import com.github.tgiachi.ares.data.actions.AresViewBag;
 import com.github.tgiachi.ares.data.db.AresQuery;
 import com.github.tgiachi.ares.data.template.DataModel;
@@ -11,7 +12,10 @@ import com.github.tgiachi.ares.data.template.XmlResult;
 import com.github.tgiachi.ares.data.template.YamlResult;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.sessions.SessionManager;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,9 +27,17 @@ import java.util.List;
 @AresAction(name = "homepage")
 public class TestAction implements IAresAction {
 
+
+    @AresInject
+    private Logger logger;
+
     @MapRequest(path = "/", type = RequestType.GET)
-    public AresViewBag doHomepageGet(DataModel model)
+    public AresViewBag doHomepageGet(DataModel model, HttpSession session)
     {
+        logger.log(Level.INFO, "Oh oh oh! Ares Inject works with actions");
+
+        session.setMaxInactiveInterval(1);
+
         model.addAttribute("title", "Today is " + new Date().toString());
 
         return new AresViewBag("index.tpl", model);

@@ -30,6 +30,11 @@ public class DatabaseManager implements IDatabaseManager {
     }
 
     @Override
+    public void shutdown() {
+        mDatasource.close();
+    }
+
+    @Override
     public void dispose() {
 
     }

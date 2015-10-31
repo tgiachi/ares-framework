@@ -6,11 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotazione per l'injection degli oggetti
+ * Annotazione che viene chiamata dopo avere inizializzato il bean
  */
-
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AresInject {
-
+public @interface AresPostConstruct {
 }

@@ -42,7 +42,6 @@ public class AresEngine implements IAresEngine {
     @Getter
     private IAresContainer container;
 
-
     private String configFilename;
 
 
@@ -56,10 +55,15 @@ public class AresEngine implements IAresEngine {
         loadDefaultDispacher();
     }
 
+    @Override
+    public void shutdown() {
+        getDatabaseManager().shutdown();
+    }
+
     private void initContainer()
     {
         container = new AresContainer();
-        container.scanForBeans();
+        container.init(this);
     }
 
     private void loadDefaultDispacher() {
@@ -103,8 +107,6 @@ public class AresEngine implements IAresEngine {
                 new File(SessionManager.getDirectoriesConfig().getAppConfigDirectory()).mkdirs();
             }
 
-
-
             if (!new File(configFilename).exists())
             {
                 SessionManager.setConfig( new AresConfig());
@@ -115,7 +117,6 @@ public class AresEngine implements IAresEngine {
                 String json = JsonSerializer.Serialize(SessionManager.getConfig());
 
                 FileUtils.writeStringToFile(new File(configFilename), json);
-
 
             }
 
