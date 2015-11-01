@@ -47,12 +47,20 @@ public class AresServlet extends HttpServlet {
         log(String.format("[%s] - GET - %s", req.getRemoteAddr(), request_url));
         ServletResult result =  SessionManager.getEngine().getDispacher().dispach(request_url, RequestType.GET, parseHeaders(req), parseQueryString(req.getQueryString()),req);
 
+        if (result.getErrorCode() == -1) {
 
-        resp.setContentType(result.getMimeType());
-        PrintWriter out = resp.getWriter();
+            resp.setContentType(result.getMimeType());
+            PrintWriter out = resp.getWriter();
 
-        out.print((String)result.getResult());
 
+
+
+            out.print(new String(result.getResult()));
+        }
+        else
+        {
+            resp.sendError(result.getErrorCode());
+        }
     }
 
     @Override

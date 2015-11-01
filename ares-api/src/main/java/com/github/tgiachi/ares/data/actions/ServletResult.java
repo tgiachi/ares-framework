@@ -11,11 +11,13 @@ import java.io.Serializable;
 @Data
 public class ServletResult implements Serializable {
 
-    private Serializable result;
+    private byte[] result;
 
     private String mimeType = "text/html";
 
-    public ServletResult(Serializable result)
+    private int errorCode = -1;
+
+    public ServletResult(byte[] result)
     {
         this.result = result;
     }
@@ -25,7 +27,7 @@ public class ServletResult implements Serializable {
 
     }
 
-    public ServletResult(String mimeType, Serializable result )
+    public ServletResult(String mimeType, byte[] result )
     {
         this.mimeType = mimeType;
         this.result = result;

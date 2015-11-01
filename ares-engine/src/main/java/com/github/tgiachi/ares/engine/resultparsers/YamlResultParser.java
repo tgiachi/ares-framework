@@ -21,7 +21,7 @@ public class YamlResultParser extends BaseResultParser {
 
         YamlResult result =(YamlResult) method.invoke(invoker, params);
 
-        return new ServletResult("application/x+yaml", YAMLSerializer.toYaml(result.getData()));
+        return new ServletResult("application/x+yaml", YAMLSerializer.toYaml(result.getData()).getBytes());
 
     }
 }

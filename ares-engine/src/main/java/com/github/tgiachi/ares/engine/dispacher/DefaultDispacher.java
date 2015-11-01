@@ -1,6 +1,7 @@
 package com.github.tgiachi.ares.engine.dispacher;
 
 import com.github.tgiachi.ares.annotations.actions.AresAction;
+import com.github.tgiachi.ares.annotations.actions.GetParam;
 import com.github.tgiachi.ares.annotations.actions.MapRequest;
 import com.github.tgiachi.ares.annotations.actions.RequestType;
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +57,11 @@ public class DefaultDispacher implements IAresDispacher {
 
         buildResultsParsers();
 
+        buildStaticMappers();
+
+    }
+
+    private void buildStaticMappers() {
 
     }
 
@@ -143,6 +150,7 @@ public class DefaultDispacher implements IAresDispacher {
     public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
     {
         ServletResult servletResult = new ServletResult();
+
         Optional<MapRequest> key = mActionMethods.keySet().parallelStream().filter(s -> s.type() == type && s.path().equals(action)).findFirst();
 
         if (key.isPresent()) {
@@ -168,16 +176,23 @@ public class DefaultDispacher implements IAresDispacher {
 
                 List<Object> invokerParams = new ArrayList<>();
 
-                for (Class<?> c : m.getParameterTypes()) {
+                for (Parameter c : m.getParameters()) {
 
-                    if (c.equals(DataModel.class))
+
+                    if (c.getType().equals(DataModel.class))
                         invokerParams.add(model);
-                    else if (c.equals(AresQuery.class)) {
+                    else if (c.getType().equals(AresQuery.class)) {
                         query = engine.getDatabaseManager().getNewQuery();
                         invokerParams.add(query);
                     }
-                    else if (c.equals(HttpSession.class))
+                    else if (c.getType().equals(HttpSession.class))
                         invokerParams.add(request.getSession());
+
+                    else if (c.isAnnotationPresent(GetParam.class)) {
+
+                        GetParam annotation = c.getAnnotation(GetParam.class);
+                        invokerParams.add(values.get(annotation.value()));
+                    }
 
                 }
 
@@ -203,6 +218,10 @@ public class DefaultDispacher implements IAresDispacher {
             {
 
             }
+        }
+        else
+        {
+            servletResult.setErrorCode(404);
         }
 
 

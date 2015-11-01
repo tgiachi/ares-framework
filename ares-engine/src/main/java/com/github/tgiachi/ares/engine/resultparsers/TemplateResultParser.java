@@ -23,7 +23,7 @@ public class TemplateResultParser extends BaseResultParser {
         TemplateResult templateResult = getEngine().getFileSystemManager().getTemplate(viewBag.getViewPage(), viewBag.getModel());
         stopwatch.stop();
 
-        return new ServletResult(generateDebugInfos(templateResult.getResult(), stopwatch));
+        return new ServletResult(generateDebugInfos(templateResult.getResult(), stopwatch).getBytes());
     }
 
     private String generateDebugInfos(String result, Stopwatch stopwatch)

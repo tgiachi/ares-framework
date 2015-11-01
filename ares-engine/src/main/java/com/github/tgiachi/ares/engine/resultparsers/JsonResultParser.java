@@ -19,7 +19,7 @@ public class JsonResultParser  extends BaseResultParser{
 
         JsonResult result =(JsonResult) method.invoke(invoker, params);
 
-        return new ServletResult("application/json", JsonSerializer.Serialize(result.getData()));
+        return new ServletResult("application/json", JsonSerializer.Serialize(result.getData()).getBytes());
 
     }
 }

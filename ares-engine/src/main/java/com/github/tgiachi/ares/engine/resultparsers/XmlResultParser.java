@@ -21,7 +21,7 @@ public class XmlResultParser extends BaseResultParser {
 
         XmlResult result =(XmlResult) method.invoke(invoker, params);
 
-        return new ServletResult("application/xml", XmlSerializer.toXml(result.getData()));
+        return new ServletResult("application/xml", XmlSerializer.toXml(result.getData()).getBytes());
 
     }
 }

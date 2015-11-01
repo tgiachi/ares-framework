@@ -1,6 +1,7 @@
 package com.github.tgiachi.ares.engine.actions;
 
 import com.github.tgiachi.ares.annotations.actions.AresAction;
+import com.github.tgiachi.ares.annotations.actions.GetParam;
 import com.github.tgiachi.ares.annotations.actions.MapRequest;
 import com.github.tgiachi.ares.annotations.actions.RequestType;
 import com.github.tgiachi.ares.annotations.container.AresInject;
@@ -82,5 +83,12 @@ public class TestAction implements IAresAction {
         }
 
         return null;
+    }
+
+    @MapRequest(path = "/testparam.html", type = RequestType.GET)
+    public AresViewBag doTestInjectParam(DataModel model, @GetParam("q") String q)
+    {
+        model.addAttribute("param", q);
+        return new AresViewBag("index_param.tpl", model);
     }
 }
