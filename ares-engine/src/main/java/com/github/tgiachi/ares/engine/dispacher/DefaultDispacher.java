@@ -17,6 +17,7 @@ import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
+import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
 import com.google.common.base.Stopwatch;
 import com.sun.deploy.net.HttpRequest;
@@ -45,6 +46,8 @@ public class DefaultDispacher implements IAresDispacher {
     private HashMap<Class<?>, IResultParser> mResultsParsers = new HashMap<>();
 
     private IAresEngine engine;
+
+    private List<IAresProcessor> resourcesProcessors = new ArrayList<>();
 
     public DefaultDispacher(IAresEngine engine)
     {

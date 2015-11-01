@@ -26,6 +26,7 @@ public class AresConfig implements Serializable
 
     private String filesystemManager = "com.github.tgiachi.ares.engine.filesystem.FileSystemManager";
 
+    private AresRoute routes = new AresRoute();
 
     /**
      * Funzione per l'aggiunta di una entry nel config
