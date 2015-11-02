@@ -125,7 +125,7 @@ public class FileSystemManager implements IFileSystemManager {
         if (filename.endsWith(".tpl")) {
 
 
-            log(Level.INFO, "Getting template %s", filename);
+            log(Level.DEBUG, "Getting template %s", filename);
 
             Stopwatch stw = Stopwatch.createStarted();
             try {

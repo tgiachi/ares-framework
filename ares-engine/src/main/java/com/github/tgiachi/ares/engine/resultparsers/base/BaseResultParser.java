@@ -1,5 +1,6 @@
 package com.github.tgiachi.ares.engine.resultparsers.base;
 
+import com.github.tgiachi.ares.annotations.container.AresInject;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
@@ -17,15 +18,16 @@ import java.lang.reflect.Method;
  */
 public class BaseResultParser implements IResultParser {
 
+    @AresInject
     private Logger logger;
 
     @Getter(AccessLevel.PROTECTED)
+    @AresInject
     private IAresEngine engine;
 
     @Override
     public void init(IAresEngine engine) {
-        this.engine = engine;
-        this.logger = Logger.getLogger(getClass());
+
     }
 
     @Override

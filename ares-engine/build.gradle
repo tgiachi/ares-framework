@@ -26,6 +26,7 @@ dependencies {
     compile "com.thoughtworks.xstream:xstream:$xstreamVersion"
     compile "dom4j:dom4j:$dom4jVersion"
     compile "org.yaml:snakeyaml:$yamlVersion"
+    compile "com.asual.lesscss:lesscss-engine:$lessEngine"
 
 
 

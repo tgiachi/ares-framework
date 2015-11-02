@@ -36,10 +36,10 @@ public class AresContainer implements IAresContainer {
         this.engine = engine;
         scanForBeans();
         autoWireBeans();
-        scanForPostConstuct();
+        scanForPostConstruct();
     }
 
-    private void scanForPostConstuct() {
+    private void scanForPostConstruct() {
         for (Object obj : mSingletonBeans)
         {
             try
@@ -111,8 +111,13 @@ public class AresContainer implements IAresContainer {
     @Override
     public Object resolveWires(Object obj) {
         try {
-            List<Field> fields = Arrays.asList((Field[]) obj.getClass().getDeclaredFields());
+            List<Field> fields = new ArrayList<>();
+            fields.addAll(Arrays.asList((Field[]) obj.getClass().getDeclaredFields()));
 
+           if (!obj.getClass().getSuperclass().equals(Object.class))
+            {
+                fields.addAll(Arrays.asList((Field[]) obj.getClass().getSuperclass().getDeclaredFields()));
+            }
 
             for (Field field : fields) {
                 // aresInject.
@@ -152,7 +157,8 @@ public class AresContainer implements IAresContainer {
                     }
 
                     field.setAccessible(true);
-                    try {
+                    try
+                    {
                         field.set(obj, toSet);
                     } catch (Exception ex) {
                         log(Level.FATAL, "Error during set field type %s => %s", field.getType(), ex.getMessage());

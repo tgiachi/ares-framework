@@ -3,14 +3,15 @@ package com.github.tgiachi.ares.engine.engine;
 import com.github.tgiachi.ares.annotations.AresDatabaseManager;
 import com.github.tgiachi.ares.annotations.AresFileSystemManager;
 import com.github.tgiachi.ares.data.config.AresConfig;
+import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.engine.container.AresContainer;
-import com.github.tgiachi.ares.engine.dispacher.DefaultDispacher;
+import com.github.tgiachi.ares.engine.dispatcher.DefaultDispatcher;
 import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
 import com.github.tgiachi.ares.engine.serializer.JsonSerializer;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.container.IAresContainer;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
-import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
+import com.github.tgiachi.ares.interfaces.dispacher.IAresDispatcher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.fs.IFileSystemManager;
 import com.github.tgiachi.ares.sessions.SessionManager;
@@ -20,7 +21,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,7 +37,7 @@ public class AresEngine implements IAresEngine {
     private IFileSystemManager fileSystemManager;
 
     @Getter
-    private IAresDispacher dispacher;
+    private IAresDispatcher dispatcher;
 
     @Getter
     private IAresContainer container;
@@ -68,7 +68,7 @@ public class AresEngine implements IAresEngine {
 
     private void loadDefaultDispacher() {
 
-        dispacher = new DefaultDispacher(this);
+        dispatcher = new DefaultDispatcher(this);
     }
 
     private void loadConfig()
@@ -128,6 +128,16 @@ public class AresEngine implements IAresEngine {
 
             try
             {
+                if (SessionManager.getConfig().getRoutes().getStaticRoutes().isEmpty())
+                {
+                    AresRouteEntry entry = new AresRouteEntry();
+                    entry.setUrlMap("/imgs/*");
+                    entry.setDirectory("imgs/");
+                    entry.setProcessorClass("");
+
+                    SessionManager.getConfig().getRoutes().getStaticRoutes().add(entry);
+
+                }
                 FileUtils.writeStringToFile(new File(configFilename), JsonSerializer.Serialize(SessionManager.getConfig()));
             }
             catch (Exception ex)

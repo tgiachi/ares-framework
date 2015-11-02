@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Sistema per il routing delle view, static, ecc...
  */
-public interface IAresDispacher {
+public interface IAresDispatcher {
 
     ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request);
 }

@@ -1,6 +1,5 @@
 package com.github.tgiachi.ares.data.actions;
 
-import com.github.tgiachi.ares.data.template.TemplateResult;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,7 +14,7 @@ public class ServletResult implements Serializable {
 
     private String mimeType = "text/html";
 
-    private int errorCode = -1;
+    private int returnCode = 200;
 
     public ServletResult(byte[] result)
     {
@@ -31,5 +30,10 @@ public class ServletResult implements Serializable {
     {
         this.mimeType = mimeType;
         this.result = result;
+    }
+
+    public ServletResult(int returnCode)
+    {
+        this.returnCode = returnCode;
     }
 }
