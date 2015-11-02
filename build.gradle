@@ -27,6 +27,7 @@ project.ext {
     postgresVersion = '9.4-1204-jdbc42'
     yamlVersion = '1.16'
     lessEngine = '1.5.1'
+    h2Version = '1.4.190'
 }
 
 

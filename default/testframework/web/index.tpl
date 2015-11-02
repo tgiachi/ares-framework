@@ -1,18 +1,15 @@
-<title> Ares Framework </title>
+<#include "includes/header.tpl">
 
 <h1> Ares framework </h1>
 <h2> Current date time => ${title} </h2>
 
-
-<h3> The page is generated in ${template_generation_time} microseconds </h3>
-<h3> Render was invoked in  ${invoke_generation_time} microseconds </h3>
-
 <a href="pluto.html"> Test Database connection </a>
 
+<img src="imgs/pippo.jpg">
 
 <p> HTTP Method: is ${request_type}</p>
 
-<a href="/?myParam=3&maParam2=4"> Test params </a>
+<a href="?myParam=3&maParam2=4"> Test params </a>
 
 <p> Query params  count is ${values?size}</p>
 
@@ -40,3 +37,4 @@
         </tr>
     </#list>
 </#if>
+</body>
