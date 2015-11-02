@@ -7,6 +7,7 @@ import com.github.tgiachi.ares.annotations.actions.RequestType;
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
 import com.github.tgiachi.ares.data.actions.AresViewBag;
 import com.github.tgiachi.ares.data.actions.ServletResult;
+import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.data.db.AresQuery;
 import com.github.tgiachi.ares.data.template.*;
 import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
@@ -14,11 +15,13 @@ import com.github.tgiachi.ares.engine.serializer.JsonSerializer;
 import com.github.tgiachi.ares.engine.serializer.XmlSerializer;
 import com.github.tgiachi.ares.engine.serializer.YAMLSerializer;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
+import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispacher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
+import com.github.tgiachi.ares.sessions.SessionManager;
 import com.google.common.base.Stopwatch;
 import com.sun.deploy.net.HttpRequest;
 import org.apache.log4j.Level;
@@ -49,6 +52,8 @@ public class DefaultDispacher implements IAresDispacher {
 
     private List<IAresProcessor> resourcesProcessors = new ArrayList<>();
 
+    private HashMap<String, AresRouteEntry> mStaticRouters = new HashMap<>();
+
     public DefaultDispacher(IAresEngine engine)
     {
         this.engine = engine;
@@ -65,6 +70,20 @@ public class DefaultDispacher implements IAresDispacher {
     }
 
     private void buildStaticMappers() {
+        try
+        {
+            for (AresRouteEntry entry : SessionManager.getConfig().getRoutes().getStaticRoutes())
+            {
+                log(Level.INFO, " Mapping %s -> %s", entry.getUrlMap(), entry.getUrlMap());
+
+                mStaticRouters.put(entry.getUrlMap(), entry);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            log(Level.FATAL, "Error during build static mapper : %s", ex.getMessage());
+        }
 
     }
 
@@ -149,24 +168,39 @@ public class DefaultDispacher implements IAresDispacher {
         }
     }
 
+    public ServletResult checkStaticResource(String request)
+    {
+
+        Optional<String> key =mStaticRouters.keySet().stream().filter(s-> s.contains(request)).findAny();
+
+        if (key.isPresent())
+        {
+            
+        }
+
+        return null;
+    }
+
     @Override
     public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
     {
-        ServletResult servletResult = new ServletResult();
+
+
+        ServletResult servletResult =  checkStaticResource(action);
 
         Optional<MapRequest> key = mActionMethods.keySet().parallelStream().filter(s -> s.type() == type && s.path().equals(action)).findFirst();
 
         if (key.isPresent()) {
             Method m = mActionMethods.get(key.get());
             DataModel model = new DataModel();
-            model.addAttribute("request_type", type);
-            model.addAttribute("headers", headers);
-            model.addAttribute("values", values);
-            model.addAttribute("invoke_generation_time", 0);
-            model.addAttribute("gitproperties", AppInfo.gitProperties);
-            model.addAttribute("appname", AppInfo.AppName);
-            model.addAttribute("appversion", AppInfo.AppVersion);
-            model.addAttribute("session", request.getSession());
+            model.addAttribute(EngineConst.MODEL_VAR_REQUEST_TYPE, type);
+            model.addAttribute(EngineConst.MODEL_VAR_HEADERS, headers);
+            model.addAttribute(EngineConst.MODEL_VAR_VALUES, values);
+            model.addAttribute(EngineConst.MODEL_VAR_INVOKE_GENERATOR_TIME, 0);
+            model.addAttribute(EngineConst.MODEL_VAR_GIT_PROPERTIES, AppInfo.gitProperties);
+            model.addAttribute(EngineConst.MODEL_APP_NAME, AppInfo.AppName);
+            model.addAttribute(EngineConst.MODEL_APP_VERSION, AppInfo.AppVersion);
+            model.addAttribute(EngineConst.MODEL_SESSION, request.getSession());
 
 
             try {

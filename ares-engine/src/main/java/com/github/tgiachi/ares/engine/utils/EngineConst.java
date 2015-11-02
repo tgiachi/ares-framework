@@ -13,6 +13,15 @@ public class EngineConst {
     public static String DEFAULT_TEMPLATE_DIRECTORY = "web";
 
 
+    public static String MODEL_VAR_REQUEST_TYPE = "request_type";
+    public static String MODEL_VAR_HEADERS = "headers";
+    public static String MODEL_VAR_VALUES = "values";
+    public static String MODEL_VAR_INVOKE_GENERATOR_TIME = "invoke_generation_time";
+    public static String MODEL_VAR_GIT_PROPERTIES = "gitproperties";
+    public static String MODEL_APP_NAME = "appname";
+    public static String MODEL_APP_VERSION = "appversion";
+    public static String MODEL_SESSION = "session";
+
 
     public static String getAresBasedirectory()
     {

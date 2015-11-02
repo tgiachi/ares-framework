@@ -126,6 +126,15 @@ public class AresEngine implements IAresEngine {
 
             log(Level.INFO, "Loading config file is OK");
 
+            try
+            {
+                FileUtils.writeStringToFile(new File(configFilename), JsonSerializer.Serialize(SessionManager.getConfig()));
+            }
+            catch (Exception ex)
+            {
+                log(Level.FATAL, "Error during saving config => %s", ex.getMessage());
+            }
+
         }
         catch (Exception ex)
         {
