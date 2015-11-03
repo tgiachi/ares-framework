@@ -49,7 +49,7 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     private HashMap<String, IAresProcessor> mProcessors = new HashMap<>();
 
-    private HashMap<Integer, Method> mCodesResultMethod = new HashMap<>();
+    private HashMap<Integer, IAresAction> mCodesResultMethod = new HashMap<>();
 
     public DefaultDispatcher(IAresEngine engine)
     {
@@ -65,6 +65,8 @@ public class DefaultDispatcher implements IAresDispatcher {
         buildStaticMappers();
 
     }
+
+
 
     private void buildResourcesProcessors()
     {
@@ -162,6 +164,16 @@ public class DefaultDispatcher implements IAresDispatcher {
                         try
                         {
                             mapperRouter.addMap(actionAnnotations.baseUrl() + mapRequest.path(), action);
+
+                            if (m.isAnnotationPresent(AresCodeResult.class))
+                            {
+                                AresCodeResult codeAnnotation = m.getAnnotation(AresCodeResult.class);
+
+                                log(Level.INFO, "Found method for error %s => %s", codeAnnotation.value(), m.getName());
+
+
+                                mCodesResultMethod.put(codeAnnotation.value(), action );
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -212,6 +224,42 @@ public class DefaultDispatcher implements IAresDispatcher {
         return new ServletResult(HttpServletResponse.SC_NOT_FOUND);
     }
 
+    private ServletResult resolveCodes(int code, ServletResult result, String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
+    {
+        IAresAction aresAction = mCodesResultMethod.get(code);
+        DataModel model = prepareDefaultDatamodel(action,type,headers,values,request);
+
+        if (result.getException() != null)
+        {
+            model.addAttribute("exception", result.getException());
+        }
+
+        if (aresAction != null)
+        {
+            Method codeMethod = null;
+            for(Method m : aresAction.getClass().getDeclaredMethods())
+            {
+                if (m.isAnnotationPresent(AresCodeResult.class))
+                {
+                    AresCodeResult annotation = m.getAnnotation(AresCodeResult.class);
+
+                    if (annotation.value() == code)
+                    {
+                       codeMethod = m;
+                    }
+                }
+            }
+
+            if (codeMethod != null)
+            {
+                result = callActionMethod(codeMethod, aresAction, action, type, request, model, values);
+            }
+        }
+
+        return result;
+
+    }
+
     public DataModel prepareDefaultDatamodel(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
     {
         DataModel model = new DataModel();
@@ -225,6 +273,7 @@ public class DefaultDispatcher implements IAresDispatcher {
         model.addAttribute(EngineConst.MODEL_APP_NAME, AppInfo.AppName);
         model.addAttribute(EngineConst.MODEL_APP_VERSION, AppInfo.AppVersion);
         model.addAttribute(EngineConst.MODEL_SESSION, request.getSession());
+        model.addAttribute(EngineConst.MODEL_SESSION_MAP, getSessionHashMap(request));
         model.addAttribute(EngineConst.MODEL_CONTEXT_PATH, request.getContextPath() + "/");
         return model;
 
@@ -275,6 +324,16 @@ public class DefaultDispatcher implements IAresDispatcher {
             servletResult = checkStaticResource(action);
         }
 
+        if (servletResult.getException() != null)
+        {
+            servletResult = resolveCodes(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, servletResult, action, type,headers,values,request);
+        }
+
+        if (servletResult.getReturnCode() == HttpServletResponse.SC_NOT_FOUND)
+        {
+            servletResult = resolveCodes(HttpServletResponse.SC_NOT_FOUND, servletResult, action, type,headers,values,request);
+        }
+
 
         log(Level.INFO, "[%s] - %s - %s - %s", request.getRemoteAddr(), type, servletResult.getReturnCode(), action);
 
@@ -300,16 +359,22 @@ public class DefaultDispatcher implements IAresDispatcher {
     {
         return (aresAction.getClass().isAnnotationPresent(AresProtectedArea.class));
     }
-
-    private ServletResult callActionMethod( IAresAction aresAction, String action, RequestType type, HttpServletRequest request, DataModel model, HashMap<String,String> values)
+    private ServletResult callActionMethod(IAresAction aresAction, String action, RequestType type, HttpServletRequest request, DataModel model, HashMap<String,String> values)
     {
-        Method m = getActionMethod(aresAction, action, type);
+        return callActionMethod(null, aresAction,action,type,request,model,values);
+    }
+
+    private ServletResult callActionMethod( Method m, IAresAction aresAction, String action, RequestType type, HttpServletRequest request, DataModel model, HashMap<String,String> values)
+    {
+         if (m == null)
+             m = getActionMethod(aresAction, action, type);
 
         if (m != null)
         {
             List<Object> invokerParams = buildParams(m,request,model,values);
 
-            Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(m.getReturnType())).findFirst());
+            final Method finalM = m;
+            Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(finalM.getReturnType())).findFirst());
 
             if (resultKey.isPresent()) {
                 IResultParser parser = mResultsParsers.get(resultKey.get());
@@ -325,6 +390,9 @@ public class DefaultDispatcher implements IAresDispatcher {
 
                 } catch (Exception ex) {
                     log(Level.FATAL, "Error during call result parsers %s ==> %s", parser.getClass(), ex.getMessage());
+
+                    ServletResult result = new ServletResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    result.setException(ex);
                 }
 
 
@@ -399,6 +467,18 @@ public class DefaultDispatcher implements IAresDispatcher {
 
 
         return m;
+    }
+
+    public HashMap<String, Object> getSessionHashMap(HttpServletRequest request)
+    {
+        HashMap<String, Object> session = new HashMap<>();
+
+        for(String key : Collections.list(request.getSession().getAttributeNames()))
+        {
+            session.put(key, request.getSession().getAttribute(key));
+        }
+
+        return session;
     }
 
     protected void log(Level level, String text, Object ... args)

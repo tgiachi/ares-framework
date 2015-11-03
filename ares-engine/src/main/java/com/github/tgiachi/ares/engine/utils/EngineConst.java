@@ -22,6 +22,8 @@ public class EngineConst {
     public static String MODEL_APP_NAME = "appname";
     public static String MODEL_APP_VERSION = "appversion";
     public static String MODEL_SESSION = "session";
+    public static String MODEL_SESSION_MAP = "session_map";
+
     public static String MODEL_CONTEXT_PATH = "context_path";
 
     public static String SESSION_USER_AUTHENTICATED = "is_authenticated";

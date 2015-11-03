@@ -16,6 +16,8 @@ public class ServletResult implements Serializable {
 
     private int returnCode = 200;
 
+    private Exception exception;
+
     public ServletResult(byte[] result)
     {
         this.result = result;

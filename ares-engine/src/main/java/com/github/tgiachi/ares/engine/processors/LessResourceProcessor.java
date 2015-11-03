@@ -9,8 +9,7 @@ import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 

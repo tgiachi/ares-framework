@@ -37,7 +37,6 @@ public class TestAction implements IAresAction {
     {
         logger.log(Level.INFO, "Oh oh oh! Ares Inject works with actions");
 
-        session.setMaxInactiveInterval(1);
 
         model.addAttribute("title", "Today is " + new Date().toString());
 
@@ -62,7 +61,7 @@ public class TestAction implements IAresAction {
         return new YamlResult(SessionManager.getConfig());
     }
 
-    @MapRequest(path = "/pluto.html", type = RequestType.GET)
+    @MapRequest(path = "/testdatabase.html", type = RequestType.GET)
     public AresViewBag doPluto(DataModel model, AresQuery query)
     {
         List<String> tables = new ArrayList<>();
@@ -71,8 +70,6 @@ public class TestAction implements IAresAction {
             query.execute();
 
             List<TableInfo> results = query.mapResultToObject(TableInfo.class);
-
-            //query.getResultSet().first();
 
             while ( query.getResultSet().next())
             {
@@ -83,7 +80,7 @@ public class TestAction implements IAresAction {
             model.addAttribute("mapped", results);
             model.addAttribute("query_execution_time", query.getExecutionTime());
 
-            return new AresViewBag("pluto.tpl", model);
+            return new AresViewBag("testdatabase.tpl", model);
         }
         catch (Exception ex)
         {
@@ -98,6 +95,12 @@ public class TestAction implements IAresAction {
     {
         model.addAttribute("param", q);
         return new AresViewBag("index_param.tpl", model);
+    }
+
+    @MapRequest(path = "/make_error.html", type = RequestType.GET)
+    public AresViewBag doTestError(DataModel model)
+    {
+        return new AresViewBag("make_error.tpl", model);
     }
 
     @MapRequest(path = "/debug.html", type = RequestType.GET)

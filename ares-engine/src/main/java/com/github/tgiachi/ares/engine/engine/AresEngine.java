@@ -20,6 +20,7 @@ import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import rx.functions.Action1;
 
 import java.io.File;
 import java.util.Set;
