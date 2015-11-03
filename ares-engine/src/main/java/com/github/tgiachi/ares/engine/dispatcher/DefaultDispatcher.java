@@ -49,6 +49,8 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     private HashMap<String, IAresProcessor> mProcessors = new HashMap<>();
 
+    private HashMap<Integer, Method> mCodesResultMethod = new HashMap<>();
+
     public DefaultDispatcher(IAresEngine engine)
     {
         this.engine = engine;

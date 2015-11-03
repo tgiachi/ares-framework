@@ -28,7 +28,10 @@ public class AuthorizeAction implements IAresAction {
     }
 
     @MapRequest(path = "/login_post", type = RequestType.POST)
-    public RedirectResult doLoginPost(DataModel model, @GetSessionParam(EngineConst.SESSION_PRE_AUTH) String prevUrl,  @GetParam("email") String email, @GetParam("password") String password, HttpSession session)
+    public RedirectResult doLoginPost(DataModel model,
+                                      @GetSessionParam(EngineConst.SESSION_PRE_AUTH) String prevUrl,
+                                      @GetParam("email") String email,
+                                      @GetParam("password") String password, HttpSession session)
     {
         session.setAttribute(EngineConst.SESSION_USER_AUTHENTICATED, "true");
 
