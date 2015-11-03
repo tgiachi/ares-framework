@@ -1,9 +1,6 @@
 package com.github.tgiachi.ares.engine.actions;
 
-import com.github.tgiachi.ares.annotations.actions.AresAction;
-import com.github.tgiachi.ares.annotations.actions.GetParam;
-import com.github.tgiachi.ares.annotations.actions.MapRequest;
-import com.github.tgiachi.ares.annotations.actions.RequestType;
+import com.github.tgiachi.ares.annotations.actions.*;
 import com.github.tgiachi.ares.annotations.container.AresInject;
 import com.github.tgiachi.ares.data.actions.AresViewBag;
 import com.github.tgiachi.ares.data.db.AresQuery;
@@ -11,6 +8,8 @@ import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.data.template.JsonResult;
 import com.github.tgiachi.ares.data.template.XmlResult;
 import com.github.tgiachi.ares.data.template.YamlResult;
+import com.github.tgiachi.ares.engine.persistence.TableInfo;
+import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import org.apache.log4j.Level;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -67,13 +67,21 @@ public class TestAction implements IAresAction {
     {
         List<String> tables = new ArrayList<>();
         try {
-            query.getQuery().execute("select * from information_schema.tables;");
-            while ( query.getQuery().getResultSet().next())
+            query.prepare("select * from information_schema.tables;");
+            query.execute();
+
+            List<TableInfo> results = query.mapResultToObject(TableInfo.class);
+
+            //query.getResultSet().first();
+
+            while ( query.getResultSet().next())
             {
-                tables.add(query.getQuery().getResultSet().getString("table_name"));
+                tables.add(query.getResultSet().getString("table_name"));
             }
 
             model.addAttribute("tables", tables);
+            model.addAttribute("mapped", results);
+            model.addAttribute("query_execution_time", query.getExecutionTime());
 
             return new AresViewBag("pluto.tpl", model);
         }
@@ -90,5 +98,20 @@ public class TestAction implements IAresAction {
     {
         model.addAttribute("param", q);
         return new AresViewBag("index_param.tpl", model);
+    }
+
+    @MapRequest(path = "/debug.html", type = RequestType.GET)
+    public AresViewBag doViewStats(DataModel model, @GetSessionParam(EngineConst.SESSION_PREV_URL) String prevUrl )
+    {
+        model.addAttribute("generation_stats", SessionManager.getGenerationStats().stream().filter(s -> !s.getLog().equals("debug.tpl")).collect(Collectors.toList()));
+        model.addAttribute("session_prev", prevUrl);
+        return new AresViewBag("debug.tpl", model);
+    }
+
+    @MapRequest(path = "/debug_clear_logs.json", type = RequestType.GET)
+    public JsonResult clearDebugLogs()
+    {
+        SessionManager.setGenerationStats(new ArrayList<>());
+        return new JsonResult("OK");
     }
 }

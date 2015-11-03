@@ -9,12 +9,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -80,32 +78,38 @@ public class AresServlet extends HttpServlet {
 
         String request_url = req.getRequestURI().replace(req.getContextPath() , "");
 
-        ServletResult result =  SessionManager.getEngine().getDispatcher().dispach(request_url, getRequestTypeByString(req.getMethod()), parseHeaders(req), parseQueryString(req.getQueryString()), req);
+        ServletResult result =  SessionManager.getEngine().getDispatcher().dispatch(request_url, getRequestTypeByString(req.getMethod()), parseHeaders(req), parseQueryString(req), req);
 
-        if (result.getReturnCode() == HttpServletResponse.SC_OK) {
 
-            resp.setContentType(result.getMimeType());
-            resp.setContentLength(result.getResult().length);
-
-            IOUtils.write(result.getResult(), resp.getOutputStream());
-        }
-        else
+        switch (result.getReturnCode())
         {
-            resp.sendError(result.getReturnCode());
+            case HttpServletResponse.SC_OK:
+                resp.setContentType(result.getMimeType());
+                resp.setContentLength(result.getResult().length);
+                IOUtils.write(result.getResult(), resp.getOutputStream());
+                break;
+            case HttpServletResponse.SC_MOVED_PERMANENTLY:
+                resp.sendRedirect(new String(result.getResult()));
+                break;
+            default:
+                resp.sendError(result.getReturnCode());
+                break;
+
+
         }
+
     }
 
-    protected HashMap<String, String> parseQueryString(String queryString)
+    protected HashMap<String, String> parseQueryString(HttpServletRequest request)
     {
         HashMap<String, String> result = new HashMap<>();
 
-        if (queryString != null) {
-            String[] params = queryString.split("&");
 
-            for (String param : params) {
-                result.put(param.split("=")[0], param.split("=")[1]);
-            }
+        for(String key : Collections.list(request.getParameterNames()))
+        {
+            result.put(key, request.getParameter(key));
         }
+
         return result;
     }
 

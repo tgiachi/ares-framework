@@ -3,7 +3,7 @@ package com.github.tgiachi.ares.engine.container;
 import com.github.tgiachi.ares.annotations.container.AresBean;
 import com.github.tgiachi.ares.annotations.container.AresInject;
 import com.github.tgiachi.ares.annotations.container.AresPostConstruct;
-import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
+import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.github.tgiachi.ares.interfaces.container.AresContainerType;
 import com.github.tgiachi.ares.interfaces.container.IAresBean;
 import com.github.tgiachi.ares.interfaces.container.IAresContainer;
@@ -12,11 +12,9 @@ import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Container default per i beans
@@ -122,7 +120,7 @@ public class AresContainer implements IAresContainer {
             for (Field field : fields) {
                 // aresInject.
                 if (field.isAnnotationPresent(AresInject.class)) {
-                    log(Level.INFO, "%s.%s is annotated with AresInject", obj.getClass().getSimpleName(), field.getName());
+                    log(Level.DEBUG, "%s.%s is annotated with AresInject", obj.getClass().getSimpleName(), field.getName());
 
                     Object toSet = null;
 

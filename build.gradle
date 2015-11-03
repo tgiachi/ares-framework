@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'idea'
 
 // Pull the plugin from Maven Central
 buildscript {
@@ -28,6 +29,8 @@ project.ext {
     yamlVersion = '1.16'
     lessEngine = '1.5.1'
     h2Version = '1.4.190'
+    guavaVersion = '18.0'
+    rxVersion = '1.0.14'
 }
 
 

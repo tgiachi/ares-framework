@@ -13,6 +13,7 @@ public class EngineConst {
     public static String DEFAULT_TEMPLATE_DIRECTORY = "web";
 
 
+    public static String MODEL_VAR_ACTION = "action";
     public static String MODEL_VAR_REQUEST_TYPE = "request_type";
     public static String MODEL_VAR_HEADERS = "headers";
     public static String MODEL_VAR_VALUES = "values";
@@ -21,6 +22,12 @@ public class EngineConst {
     public static String MODEL_APP_NAME = "appname";
     public static String MODEL_APP_VERSION = "appversion";
     public static String MODEL_SESSION = "session";
+    public static String MODEL_CONTEXT_PATH = "context_path";
+
+    public static String SESSION_USER_AUTHENTICATED = "is_authenticated";
+    public static final String SESSION_PRE_AUTH = "pre_auth_url";
+    public static final String SESSION_PREV_URL = "prev_url";
+
 
 
     public static String getAresBasedirectory()

@@ -12,5 +12,5 @@ import java.util.List;
  */
 public interface IAresDispatcher {
 
-    ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request);
+    ServletResult dispatch(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request);
 }

@@ -1,6 +1,7 @@
 package com.github.tgiachi.ares.engine.filesystem;
 
 import com.github.tgiachi.ares.annotations.AresFileSystemManager;
+import com.github.tgiachi.ares.data.debug.GenerationStat;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.data.template.TemplateResult;
 import com.github.tgiachi.ares.interfaces.fs.IFileSystemManager;
@@ -148,7 +149,9 @@ public class FileSystemManager implements IFileSystemManager {
             stw.stop();
             result.setGenerationTime(stw.elapsed(TimeUnit.MICROSECONDS));
 
-            log(Level.INFO, "Total time for %s is %s microseconds", filename, stw.elapsed(TimeUnit.MICROSECONDS));
+            SessionManager.broadcastMessage("DEBUG_GENERATION", new GenerationStat(getClass(), "TEMPLATE_GENERATION", stw.elapsed(TimeUnit.MICROSECONDS), filename));
+
+            log(Level.DEBUG, "Total time for %s is %s microseconds", filename, stw.elapsed(TimeUnit.MICROSECONDS));
         }
         else {
             result= getStaticPage(filename);

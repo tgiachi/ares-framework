@@ -16,4 +16,6 @@ public interface IDatabaseManager extends IAresManager {
 
     void shutdown();
 
+    <T> T mapEntity(IAresQuery query, Class<?> entityClass);
+
 }

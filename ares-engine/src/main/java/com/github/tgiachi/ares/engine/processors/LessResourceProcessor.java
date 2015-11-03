@@ -3,9 +3,11 @@ package com.github.tgiachi.ares.engine.processors;
 import com.asual.lesscss.LessEngine;
 import com.github.tgiachi.ares.annotations.container.AresResourcesProcessor;
 import com.github.tgiachi.ares.data.actions.ServletResult;
+import com.github.tgiachi.ares.data.debug.GenerationStat;
 import com.github.tgiachi.ares.engine.processors.base.BaseResourceProcessor;
 import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.sessions.SessionManager;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Processor per generare i file LESS
@@ -93,7 +96,13 @@ public class LessResourceProcessor extends BaseResourceProcessor {
     {
         try
         {
-            return mLessEngine.compile(new File(filename), true);
+            String result = "";
+            Stopwatch sw = Stopwatch.createStarted();
+            result = mLessEngine.compile(new File(filename), true);
+            SessionManager.broadcastMessage("DEBUG_GENERATION", new GenerationStat(getClass(), "LESS_GENERATION", sw.elapsed(TimeUnit.MICROSECONDS), filename));
+
+
+            return result;
 
         }
         catch (Exception ex)

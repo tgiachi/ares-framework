@@ -1,16 +1,13 @@
 package com.github.tgiachi.ares.engine.dispatcher;
 
-import com.github.tgiachi.ares.annotations.actions.AresAction;
-import com.github.tgiachi.ares.annotations.actions.GetParam;
-import com.github.tgiachi.ares.annotations.actions.MapRequest;
-import com.github.tgiachi.ares.annotations.actions.RequestType;
+import com.github.tgiachi.ares.annotations.actions.*;
 import com.github.tgiachi.ares.annotations.container.AresResourcesProcessor;
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.data.db.AresQuery;
 import com.github.tgiachi.ares.data.template.*;
-import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
+import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
@@ -26,14 +23,13 @@ import org.apache.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * Sistema di dispach delle pagine di default
+ * Sistema di dispatch delle pagine di default
  */
 public class DefaultDispatcher implements IAresDispatcher {
 
@@ -140,7 +136,6 @@ public class DefaultDispatcher implements IAresDispatcher {
     }
 
 
-
     private void buildActionAnnotations()
     {
         Set<Class<?>> classes = ReflectionUtils.getAnnotation(AresAction.class);
@@ -215,15 +210,11 @@ public class DefaultDispatcher implements IAresDispatcher {
         return new ServletResult(HttpServletResponse.SC_NOT_FOUND);
     }
 
-    @Override
-    public ServletResult dispach(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
+    public DataModel prepareDefaultDatamodel(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
     {
-        IAresAction aresAction = mapperRouter.match(action);
-        ServletResult servletResult = new ServletResult(HttpServletResponse.SC_NOT_FOUND);
-        boolean actionExecuted = false;
-
-
         DataModel model = new DataModel();
+
+        model.addAttribute(EngineConst.MODEL_VAR_ACTION, action);
         model.addAttribute(EngineConst.MODEL_VAR_REQUEST_TYPE, type);
         model.addAttribute(EngineConst.MODEL_VAR_HEADERS, headers);
         model.addAttribute(EngineConst.MODEL_VAR_VALUES, values);
@@ -232,30 +223,46 @@ public class DefaultDispatcher implements IAresDispatcher {
         model.addAttribute(EngineConst.MODEL_APP_NAME, AppInfo.AppName);
         model.addAttribute(EngineConst.MODEL_APP_VERSION, AppInfo.AppVersion);
         model.addAttribute(EngineConst.MODEL_SESSION, request.getSession());
+        model.addAttribute(EngineConst.MODEL_CONTEXT_PATH, request.getContextPath() + "/");
+        return model;
+
+    }
+
+    @Override
+    public ServletResult dispatch(String action, RequestType type, HashMap<String, String> headers, HashMap<String, String> values, HttpServletRequest request)
+    {
+        IAresAction aresAction = mapperRouter.match(action);
+        ServletResult servletResult = new ServletResult(HttpServletResponse.SC_NOT_FOUND);
+        boolean actionExecuted = false;
 
 
         if (aresAction != null)
         {
-            Method m = getActionMethod(aresAction, action, type);
+            DataModel model = prepareDefaultDatamodel(action, type,headers,values,request);
 
-            if (m != null)
+            if (!needAuth(aresAction))
             {
-                List<Object> invokerParams = buildParams(m,request,model,values);
+                servletResult = callActionMethod(aresAction, action, type, request, model, values);
 
-                Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(m.getReturnType())).findFirst());
+                if (servletResult != null)
+                    actionExecuted = true;
+            }
+            else
+            {
+                if (!getSessionValue(request.getSession(), EngineConst.SESSION_USER_AUTHENTICATED).equals("true"))
+                {
+                    servletResult = new ServletResult(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                    setSessionValue(request.getSession(), EngineConst.SESSION_PRE_AUTH, action);
+                    servletResult.setResult("http://localhost:8080/auth/login".getBytes());
 
-                if (resultKey.isPresent()) {
-                    IResultParser parser = mResultsParsers.get(resultKey.get());
-                    engine.getContainer().resolveWires(parser);
+                    actionExecuted = true;
+                }
+                else
+                {
+                    servletResult = callActionMethod(aresAction, action, type, request, model, values);
 
-                    try
-                    {
-                        servletResult = parser.parse(model, m, aresAction, invokerParams.toArray());
+                    if (servletResult != null)
                         actionExecuted = true;
-                    } catch (Exception ex) {
-                        log(Level.FATAL, "Error during call result parsers %s ==> %s", parser.getClass(), ex.getMessage());
-                    }
-
 
                 }
             }
@@ -267,10 +274,64 @@ public class DefaultDispatcher implements IAresDispatcher {
         }
 
 
-
-
         log(Level.INFO, "[%s] - %s - %s - %s", request.getRemoteAddr(), type, servletResult.getReturnCode(), action);
+
         return servletResult;
+
+    }
+
+    private String getSessionValue(HttpSession session, String key)
+    {
+        if (session.getAttribute(key) != null)
+            return (String)session.getAttribute(key);
+        else
+            return "";
+
+    }
+
+    private void setSessionValue(HttpSession session , String key, String value)
+    {
+        session.setAttribute(key,value);
+    }
+
+    private boolean needAuth(IAresAction aresAction)
+    {
+        return (aresAction.getClass().isAnnotationPresent(AresProtectedArea.class));
+    }
+
+    private ServletResult callActionMethod( IAresAction aresAction, String action, RequestType type, HttpServletRequest request, DataModel model, HashMap<String,String> values)
+    {
+        Method m = getActionMethod(aresAction, action, type);
+
+        if (m != null)
+        {
+            List<Object> invokerParams = buildParams(m,request,model,values);
+
+            Optional<Class<?>> resultKey = (mResultsParsers.keySet().parallelStream().filter(s -> s.equals(m.getReturnType())).findFirst());
+
+            if (resultKey.isPresent()) {
+                IResultParser parser = mResultsParsers.get(resultKey.get());
+                engine.getContainer().resolveWires(parser);
+
+                try
+                {
+                    ServletResult result = parser.parse(model, m, aresAction, invokerParams.toArray());
+
+                    setSessionValue(request.getSession(), EngineConst.SESSION_PREV_URL, action);
+
+                    return result;
+
+                } catch (Exception ex) {
+                    log(Level.FATAL, "Error during call result parsers %s ==> %s", parser.getClass(), ex.getMessage());
+                }
+
+
+            }
+        }
+
+
+
+        return null;
 
     }
 
@@ -293,10 +354,17 @@ public class DefaultDispatcher implements IAresDispatcher {
             else if (c.isAnnotationPresent(GetParam.class)) {
 
                 GetParam annotation = c.getAnnotation(GetParam.class);
+
                 if (values.get(annotation.value()) != null)
                     invokerParams.add(values.get(annotation.value()));
                 else
                     invokerParams.add("");
+            }
+            else if (c.isAnnotationPresent(GetSessionParam.class))
+            {
+                GetSessionParam annotation = c.getAnnotation(GetSessionParam.class);
+
+                invokerParams.add(getSessionValue(request.getSession(), annotation.value()));
             }
 
         }

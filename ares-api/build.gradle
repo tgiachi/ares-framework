@@ -11,4 +11,7 @@ repositories {
 dependencies {
     compile "commons-io:commons-io:$commonsIoVersion"
     compile "javax.servlet:javax.servlet-api:$javaxServletVersion"
+    compile "com.google.guava:guava:$guavaVersion"
+    compile "org.reflections:reflections:$reflectionVersion"
+    compile "io.reactivex:rxjava:$rxVersion"
 }

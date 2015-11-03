@@ -4,9 +4,10 @@ import com.github.tgiachi.ares.annotations.AresDatabaseManager;
 import com.github.tgiachi.ares.annotations.AresFileSystemManager;
 import com.github.tgiachi.ares.data.config.AresConfig;
 import com.github.tgiachi.ares.data.config.AresRouteEntry;
+import com.github.tgiachi.ares.data.debug.GenerationStat;
 import com.github.tgiachi.ares.engine.container.AresContainer;
 import com.github.tgiachi.ares.engine.dispatcher.DefaultDispatcher;
-import com.github.tgiachi.ares.engine.reflections.ReflectionUtils;
+import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.github.tgiachi.ares.engine.serializer.JsonSerializer;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.container.IAresContainer;
@@ -49,10 +50,20 @@ public class AresEngine implements IAresEngine {
     public void start() {
 
         loadConfig();
+
+        subscribeQueueEvents();
+
         initComponents();
         initContainer();
 
+
+
         loadDefaultDispacher();
+    }
+
+    private void subscribeQueueEvents() {
+
+        SessionManager.subscribe("DEBUG_GENERATION", o -> SessionManager.getGenerationStats().add((GenerationStat) o));
     }
 
     @Override

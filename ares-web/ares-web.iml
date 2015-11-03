@@ -67,5 +67,6 @@
     <orderEntry type="library" name="Gradle: org.mozilla:rhino:1.7R4" level="project" />
     <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.h2database:h2:1.4.190" level="project" />
+    <orderEntry type="library" name="Gradle: io.reactivex:rxjava:1.0.14" level="project" />
   </component>
 </module>

@@ -36,7 +36,7 @@ public class UrlMapperRouter {
 
             Matcher match = pattern.matcher(uriPattern);
 
-            matches = match.find();
+            matches = match.matches();
             if (matches) {
 
                 action = mPatternsMatch.get(pattern);
