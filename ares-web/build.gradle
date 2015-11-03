@@ -24,6 +24,7 @@ gretty {
     def userHome = System.getProperty("user.home")
 
     servletContainer = 'tomcat8'
+    contextPath = '/'
 
     jvmArgs = ["-Dares.base.directory=$userHome/ares","-Dares.application.name=testframework"]
 }
