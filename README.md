@@ -1,1 +1,1 @@
-# ares-framework
+# ARES MVC framework

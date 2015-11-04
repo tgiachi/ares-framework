@@ -87,7 +87,17 @@ public class DatabaseManager implements IDatabaseManager {
 
     @Override
     public void shutdown() {
-        mDatasource.close();
+
+        try {
+            mDatasource.getConnection().close();
+            mDatasource.close();
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
     }
 
     @Override
@@ -140,14 +150,16 @@ public class DatabaseManager implements IDatabaseManager {
     {
         try
         {
+
+
             mDatasource = new ComboPooledDataSource();
-            mDatasource.setJdbcUrl(SessionManager.getConfig().getDatabaseConfig().getUrl());
-            mDatasource.setUser(SessionManager.getConfig().getDatabaseConfig().getUsername());
+            mDatasource.setJdbcUrl(SessionManager.getDatabaseConfig().getUrl());
+            mDatasource.setUser(SessionManager.getDatabaseConfig().getUsername());
 
-            if (!SessionManager.getConfig().getDatabaseConfig().getPassword().equals(""))
-                mDatasource.setPassword(SessionManager.getConfig().getDatabaseConfig().getPassword());
+            if (!SessionManager.getDatabaseConfig().getPassword().equals(""))
+                mDatasource.setPassword(SessionManager.getDatabaseConfig().getPassword());
 
-            mDatasource.setDriverClass(SessionManager.getConfig().getDatabaseConfig().getDriverClass());
+            mDatasource.setDriverClass(SessionManager.getDatabaseConfig().getDriverClass());
 
 
             mDatasource.setInitialPoolSize(10);

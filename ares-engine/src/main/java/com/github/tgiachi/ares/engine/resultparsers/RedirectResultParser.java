@@ -1,7 +1,6 @@
 package com.github.tgiachi.ares.engine.resultparsers;
 
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
-
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.data.template.RedirectResult;

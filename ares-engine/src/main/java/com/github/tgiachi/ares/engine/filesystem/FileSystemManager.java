@@ -14,7 +14,6 @@ import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import freemarker.template.Version;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -83,7 +82,11 @@ public class FileSystemManager implements IFileSystemManager {
 
             List<FileTemplateLoader> mLoaders  = new ArrayList<>();
 
+            mLoaders.add(new FileTemplateLoader(new File(SessionManager.getDirectoriesConfig().getViewsDirectory())));
+
             mLoaders.add(new FileTemplateLoader(new File(SessionManager.getDirectoriesConfig().getTemplateDirectory())));
+
+
 
             for(String d : SessionManager.getConfig().getTemplateConfig().getTemplateDirectories())
             {
@@ -97,7 +100,6 @@ public class FileSystemManager implements IFileSystemManager {
 
             mTemplateConfiguration.setTemplateLoader(mMultiTemplateLoader);
 
-            // mTemplateConfiguration.setDirectoryForTemplateLoading(new File(SessionManager.getDirectoriesConfig().getTemplateDirectory()));
 
             log(Level.INFO, "Template engine is ready!");
 
@@ -158,6 +160,12 @@ public class FileSystemManager implements IFileSystemManager {
         }
 
         return result;
+    }
+
+    @Override
+    public void shutdown() {
+        mTemplateConfiguration = null;
+        mMultiTemplateLoader = null;
     }
 
 

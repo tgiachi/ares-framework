@@ -1,10 +1,11 @@
 package com.github.tgiachi.ares.sessions;
 
 import com.github.tgiachi.ares.data.config.AresConfig;
+import com.github.tgiachi.ares.data.config.AresDatabaseConfig;
+import com.github.tgiachi.ares.data.config.AresRoutes;
 import com.github.tgiachi.ares.data.debug.GenerationStat;
 import com.github.tgiachi.ares.eventbus.ObservableVariablesManager;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import rx.functions.Action1;
@@ -27,7 +28,16 @@ public class SessionManager {
     private static AresConfig config;
 
     @Getter @Setter
-    private static DirectoriesConfig directoriesConfig;
+    private static String environment;
+
+    @Getter @Setter
+    private static DirectoriesConfig directoriesConfig = new DirectoriesConfig();
+
+    @Getter @Setter
+    private static AresDatabaseConfig databaseConfig;
+
+    @Getter @Setter
+    private static AresRoutes routes;
 
 
     public static void broadcastMessage(String key, Object value)

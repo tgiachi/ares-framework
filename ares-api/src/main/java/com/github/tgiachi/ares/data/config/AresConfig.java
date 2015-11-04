@@ -13,12 +13,8 @@ import java.util.HashMap;
 @Data
 public class AresConfig implements Serializable
 {
-    private AresConfigHeader header = new AresConfigHeader();
 
     private HashMap<String, AresConfigEntry> entries = new HashMap<>();
-
-
-    private AresDatabaseConfig databaseConfig = new AresDatabaseConfig();
 
     private AresTemplateConfig templateConfig = new AresTemplateConfig();
 
@@ -26,7 +22,7 @@ public class AresConfig implements Serializable
 
     private String filesystemManager = "com.github.tgiachi.ares.engine.filesystem.FileSystemManager";
 
-    private AresRoute routes = new AresRoute();
+    private AresStaticRoute routes = new AresStaticRoute();
 
     /**
      * Funzione per l'aggiunta di una entry nel config

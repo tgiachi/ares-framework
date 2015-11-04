@@ -5,7 +5,6 @@ import com.github.tgiachi.ares.data.actions.ServletResult;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Sistema per il routing delle view, static, ecc...

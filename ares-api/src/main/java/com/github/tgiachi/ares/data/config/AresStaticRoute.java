@@ -10,7 +10,7 @@ import java.util.List;
  * Classe per salvare il routing delle static resources
  */
 @Data
-public class AresRoute implements Serializable {
+public class AresStaticRoute implements Serializable {
 
-    private List<AresRouteEntry> staticRoutes  = new ArrayList<>();
+    private List<AresStaticRouteEntry> staticRoutes  = new ArrayList<>();
 }

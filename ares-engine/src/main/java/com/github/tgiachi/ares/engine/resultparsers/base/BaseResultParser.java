@@ -10,7 +10,6 @@ import lombok.Getter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**

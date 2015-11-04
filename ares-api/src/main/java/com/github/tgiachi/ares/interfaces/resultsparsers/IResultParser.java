@@ -4,7 +4,6 @@ import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**

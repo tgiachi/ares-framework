@@ -1,0 +1,10 @@
+{
+  "routes": [
+    {
+      "type": "GET",
+      "map": "/about.html",
+      "actionName": "testaction",
+      "method": "doAbout"
+    }
+  ]
+}

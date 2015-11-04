@@ -7,7 +7,6 @@ import com.google.common.base.Stopwatch;
 import lombok.Data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

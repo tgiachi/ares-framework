@@ -22,21 +22,16 @@ public class AresListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        log(Level.INFO, "Inizializzazione Engine");
 
         SessionManager.setEngine(new AresEngine());
-
         SessionManager.getEngine().start();
-
 
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
 
-
         SessionManager.getEngine().shutdown();
-
     }
 
     protected void log(Level level, String text, String ... args)

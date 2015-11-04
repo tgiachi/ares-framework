@@ -5,12 +5,22 @@ apply plugin: 'idea'
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'net.saliman:gradle-properties-plugin:1.4.4'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
     }
 }
+
+repositories {
+    maven {
+        url  "http://dl.bintray.com/tgiachi/aresframework"
+    }
+}
+
 apply plugin: 'net.saliman.properties'
+apply plugin: 'com.jfrog.bintray'
 
 project.ext {
     lombokVersion = '1.16.6'
@@ -39,6 +49,47 @@ repositories {
     mavenCentral()
 }
 
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'aresframework'
+        name = 'aresframework'
+        userOrg = 'tgiachi'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/tgiachi/aresframework/aresframework.git'
+
+        version {
+            name = '0.5-Alpha'
+            desc = 'Ares framework'
+            released  = new Date()
+            vcsTag = '0.5.0'
+        }
+    }
+
+}
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId 'com.github.tgiachi'
+            artifactId 'aresframework'
+            version '0.5-Alpha'
+            artifact sourceJar // Publish the output of the sourceJar task
+            artifact 'my-file-name.jar' // Publish a file created outside of the build
+            artifact source: sourceJar, classifier: 'src', extension: 'zip'
+        }
+    }
+}
+
 group="com.github.aresframework"
 version="0.5.0-Alpha"
 
@@ -51,6 +102,10 @@ allprojects {
 
     apply plugin: 'java'
     apply plugin: 'net.saliman.properties'
+
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+
 
     dependencies {
         compile "org.projectlombok:lombok:$lombokVersion"

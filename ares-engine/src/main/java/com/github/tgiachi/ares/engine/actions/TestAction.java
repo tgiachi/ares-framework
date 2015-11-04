@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Action di prova
  */
-@AresAction(name = "homepage")
+@AresAction(name = "testaction")
 public class TestAction implements IAresAction {
 
 
@@ -111,10 +111,23 @@ public class TestAction implements IAresAction {
         return new AresViewBag("debug.tpl", model);
     }
 
+    @MapRequest(path = "/test_view.html", type = RequestType.GET)
+    public AresViewBag doTestAutomaticView(DataModel model)
+    {
+        model.addAttribute("test", 123);
+
+        return new AresViewBag(model);
+    }
+
     @MapRequest(path = "/debug_clear_logs.json", type = RequestType.GET)
     public JsonResult clearDebugLogs()
     {
         SessionManager.setGenerationStats(new ArrayList<>());
         return new JsonResult("OK");
+    }
+
+    public JsonResult doAbout()
+    {
+        return new JsonResult("Ares framework");
     }
 }

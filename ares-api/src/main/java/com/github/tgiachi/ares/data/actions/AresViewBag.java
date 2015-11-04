@@ -22,6 +22,11 @@ public class AresViewBag implements Serializable {
         this.viewPage = viewPage;
     }
 
+    public AresViewBag(DataModel model)
+    {
+        this.model = model;
+    }
+
     public AresViewBag()
     {
 

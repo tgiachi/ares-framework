@@ -11,5 +11,7 @@ public interface IFileSystemManager extends IAresManager {
 
     TemplateResult getTemplate(String filename, DataModel model);
 
+    void shutdown();
+
 
 }

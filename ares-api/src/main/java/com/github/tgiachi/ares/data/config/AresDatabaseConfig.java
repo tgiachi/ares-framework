@@ -9,7 +9,9 @@ import java.util.HashMap;
  * File di configurazione per il database
  */
 @Data
-public class AresDatabaseConfig  implements Serializable{
+public class AresDatabaseConfig  implements Serializable {
+
+    private String environment = "";
 
     private String driverClass = " ";
 

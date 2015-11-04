@@ -1,8 +1,6 @@
 package com.github.tgiachi.ares.engine.dispatcher;
 
-import com.github.tgiachi.ares.annotations.container.AresStaticResources;
 import com.github.tgiachi.ares.data.actions.ServletResult;
-import com.github.tgiachi.ares.interfaces.container.IStaticMapper;
 import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import org.apache.commons.io.FileUtils;
@@ -10,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**

@@ -3,7 +3,8 @@
 <div class="container">
 
   <div class="page-header">
-    <h2>Ares Framework - Demo</h2>
+    <h2>Ares Framework - Demo </h2>
+    <h4> environment: ${environment} </h4>
   </div>
 
   <div class="panel panel-success">
@@ -28,6 +29,8 @@
   <li role="presentation"><a data-toggle="tab" href="#info">HTTP Info</a></li>
   <li role="presentation"><a data-toggle="tab" href="#headers">Headers <span class="badge">${headers?size}</span> </a></li>
   <li role="presentation"><a data-toggle="tab" href="#session">Session <span class="badge">${session_map?size}</span> </a></li>
+  <li role="presentation"><a data-toggle="tab" href="#git">Git properties</span> </a></li>
+
 </ul>
 <div class="tab-content">
   <div id="home" class="tab-pane fade in active">
@@ -50,6 +53,14 @@
   <div id="info" class="tab-pane fade">
     <code>
     <p> HTTP Method: is ${request_type}</p>
+    </code>
+  </div>
+  <div id="git" class="tab-pane fade">
+    <code>
+    <p> Commit id: ${gitproperties.commitId}</p>
+    <p> Commit id (abbr): ${gitproperties.commitIdAbbrev}</p>
+    <p> Branch: ${gitproperties.branch}</p>
+
     </code>
   </div>
   <div id="session" class="tab-pane fade">
@@ -82,7 +93,7 @@
                     <div>${key}</div>
                 </td>
                 <td width="45%">${headers[key]}</td>
-                <td width="19%">&nbsp;</td>
+
             </tr>
         </#list>
       </table>

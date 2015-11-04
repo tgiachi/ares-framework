@@ -3,7 +3,6 @@ package com.github.tgiachi.ares.data.config;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Entry della configurazione

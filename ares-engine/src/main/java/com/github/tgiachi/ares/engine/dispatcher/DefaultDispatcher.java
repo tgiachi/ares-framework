@@ -5,9 +5,9 @@ import com.github.tgiachi.ares.annotations.container.AresResourcesProcessor;
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.config.AresRouteEntry;
+import com.github.tgiachi.ares.data.config.AresStaticRouteEntry;
 import com.github.tgiachi.ares.data.db.AresQuery;
-import com.github.tgiachi.ares.data.template.*;
-import com.github.tgiachi.ares.utils.ReflectionUtils;
+import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
@@ -16,6 +16,7 @@ import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
 import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
 import com.github.tgiachi.ares.sessions.SessionManager;
+import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.google.common.base.Strings;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,7 +46,7 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     private List<IAresProcessor> resourcesProcessors = new ArrayList<>();
 
-    private HashMap<Pattern, AresRouteEntry> mStaticRouters = new HashMap<>();
+    private HashMap<Pattern, AresStaticRouteEntry> mStaticRouters = new HashMap<>();
 
     private HashMap<String, IAresProcessor> mProcessors = new HashMap<>();
 
@@ -58,6 +59,8 @@ public class DefaultDispatcher implements IAresDispatcher {
 
         buildActionAnnotations();
 
+        buildConfigRoutes();
+
         buildResultsParsers();
 
         buildResourcesProcessors();
@@ -66,6 +69,20 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     }
 
+    private void buildConfigRoutes() {
+
+        log(Level.INFO, "Building config routes");
+        for(AresRouteEntry entry : SessionManager.getRoutes().getRoutes())
+        {
+            IAresAction action = mapperRouter.getActionByName(entry.getActionName());
+
+            if (action != null)
+            {
+                log(Level.INFO, "Adding %s.%s -> %s - %s", entry.getActionName(), entry.getMethod(), entry.getType(), entry.getMap());
+                mapperRouter.addMap(entry.getMap(), action, entry);
+            }
+        }
+    }
 
 
     private void buildResourcesProcessors()
@@ -94,7 +111,7 @@ public class DefaultDispatcher implements IAresDispatcher {
     private void buildStaticMappers() {
         try
         {
-            for (AresRouteEntry entry : SessionManager.getConfig().getRoutes().getStaticRoutes())
+            for (AresStaticRouteEntry entry : SessionManager.getConfig().getRoutes().getStaticRoutes())
             {
 
                 log(Level.INFO, " Mapping %s -> %s", entry.getUrlMap(), entry.getDirectory());
@@ -200,7 +217,7 @@ public class DefaultDispatcher implements IAresDispatcher {
         if (key.isPresent())
         {
 
-            AresRouteEntry staticEntry = mStaticRouters.get(key.get());
+            AresStaticRouteEntry staticEntry = mStaticRouters.get(key.get());
 
             if (Strings.isNullOrEmpty(staticEntry.getProcessorClass()))
             {
@@ -275,6 +292,8 @@ public class DefaultDispatcher implements IAresDispatcher {
         model.addAttribute(EngineConst.MODEL_SESSION, request.getSession());
         model.addAttribute(EngineConst.MODEL_SESSION_MAP, getSessionHashMap(request));
         model.addAttribute(EngineConst.MODEL_CONTEXT_PATH, request.getContextPath() + "/");
+        model.addAttribute(EngineConst.MODEL_ENVIRONMENT, SessionManager.getEnvironment());
+
         return model;
 
     }
@@ -318,16 +337,35 @@ public class DefaultDispatcher implements IAresDispatcher {
                 }
             }
         }
+        if (!actionExecuted )
+        {
+            AresRouteEntry routeEntry = mapperRouter.getConfigRouter(action);
+
+            if (routeEntry != null)
+            {
+                if (routeEntry.getType() == type)
+                {
+                    DataModel model = prepareDefaultDatamodel(action, type, headers, values, request);
+                    Method m =  getActionMethod(routeEntry.getMethod(), aresAction, action, type);
+
+                    servletResult = callActionMethod(m, aresAction,action,type,request,model,values);
+                    actionExecuted = true;
+                }
+            }
+
+        }
+
+
+        if (servletResult.getException() != null)
+        {
+            servletResult = resolveCodes(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, servletResult, action, type,headers,values,request);
+        }
 
         if (!actionExecuted)
         {
             servletResult = checkStaticResource(action);
         }
 
-        if (servletResult.getException() != null)
-        {
-            servletResult = resolveCodes(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, servletResult, action, type,headers,values,request);
-        }
 
         if (servletResult.getReturnCode() == HttpServletResponse.SC_NOT_FOUND)
         {
@@ -352,7 +390,7 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     private void setSessionValue(HttpSession session , String key, String value)
     {
-        session.setAttribute(key,value);
+        session.setAttribute(key, value);
     }
 
     private boolean needAuth(IAresAction aresAction)
@@ -441,6 +479,18 @@ public class DefaultDispatcher implements IAresDispatcher {
 
         return invokerParams;
 
+    }
+
+    private Method getActionMethod(String methodName, IAresAction aresAction, String action, RequestType type )
+    {
+
+        for(Method method : aresAction.getClass().getDeclaredMethods())
+        {
+            if (method.getName().equals(methodName))
+                return method;
+        }
+
+        return null;
     }
 
     private Method getActionMethod(IAresAction aresAction,String action, RequestType type)

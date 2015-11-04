@@ -3,18 +3,19 @@ package com.github.tgiachi.ares.engine.container;
 import com.github.tgiachi.ares.annotations.container.AresBean;
 import com.github.tgiachi.ares.annotations.container.AresInject;
 import com.github.tgiachi.ares.annotations.container.AresPostConstruct;
-import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.github.tgiachi.ares.interfaces.container.AresContainerType;
 import com.github.tgiachi.ares.interfaces.container.IAresBean;
 import com.github.tgiachi.ares.interfaces.container.IAresContainer;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
+import com.github.tgiachi.ares.utils.ReflectionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Container default per i beans
@@ -35,6 +36,14 @@ public class AresContainer implements IAresContainer {
         scanForBeans();
         autoWireBeans();
         scanForPostConstruct();
+    }
+
+    @Override
+    public <T> List<T> getBeansImplementInterface(Class<?> classz) {
+
+        List<T> result = mSingletonBeans.stream().filter(obj -> classz.isInstance(obj)).map(obj -> (T) obj).collect(Collectors.toList());
+
+        return result;
     }
 
     private void scanForPostConstruct() {

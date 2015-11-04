@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "environment": "development",
+      "driverClass": "org.h2.Driver",
+      "url": "jdbc:h2:~/test_db",
+      "username": "test",
+      "password": "test",
+      "poolConfiguration": {}
+    },
+    {
+      "environment": "production",
+      "driverClass": "org.postgresql.Driver",
+      "url": "jdbc:postgresql://localhost/test_db",
+      "username": "postgres",
+      "password": "postgres",
+      "poolConfiguration": {}
+    }
+  ]
+}

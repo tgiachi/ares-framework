@@ -1,13 +1,11 @@
 package com.github.tgiachi.ares.engine.dispatcher;
 
-import com.github.tgiachi.ares.annotations.actions.MapRequest;
-import com.github.tgiachi.ares.annotations.actions.RequestType;
+import com.github.tgiachi.ares.annotations.actions.AresAction;
+import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
-import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +16,8 @@ public class UrlMapperRouter {
 
     private Map<Pattern, IAresAction> mPatternsMatch = new HashMap<>();
 
-//    private Logger logger = Logger.getLogger(UrlMapperRouter.class);
+    private Map<Pattern, AresRouteEntry> mRouteConfigEntries = new HashMap<>();
+
 
 
     public void addMap(String pattern, IAresAction action)
@@ -26,7 +25,28 @@ public class UrlMapperRouter {
         mPatternsMatch.put(Pattern.compile(pattern), action);
     }
 
+    public void addMap(String pattern, IAresAction action, AresRouteEntry entry)
+    {
+        mPatternsMatch.put(Pattern.compile(pattern), action);
+        mRouteConfigEntries.put(Pattern.compile(pattern), entry);
+    }
+
+
+    public AresRouteEntry getConfigRouter(String uriPattern)
+    {
+        for (Pattern pattern: mRouteConfigEntries.keySet())
+        {
+            Matcher matcher = pattern.matcher(uriPattern);
+
+            if (matcher.matches())
+                return mRouteConfigEntries.get(pattern);
+        }
+
+        return null;
+    }
+
     public IAresAction match(String uriPattern) {
+
         IAresAction action = null;
 
         boolean matches = false;
@@ -46,5 +66,19 @@ public class UrlMapperRouter {
         }
 
         return action;
+    }
+
+    public IAresAction getActionByName(String name)
+    {
+
+        for(IAresAction action : mPatternsMatch.values())
+        {
+            AresAction annotation = action.getClass().getAnnotation(AresAction.class);
+
+            if (annotation.name().toLowerCase().equals(name.toLowerCase()))
+                return action;
+        }
+
+        return null;
     }
 }
