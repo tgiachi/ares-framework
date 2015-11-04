@@ -48,6 +48,8 @@ repositories {
     jcenter()
     mavenCentral()
 }
+project.ext.appVersion ="0.5.0-Alpha"
+project.ext.appGroup = "com.github.tgiachi"
 
 bintray {
     user = System.getenv('BINTRAY_USER')
@@ -61,7 +63,7 @@ bintray {
         vcsUrl = 'https://github.com/tgiachi/aresframework/aresframework.git'
 
         version {
-            name = '0.5-Alpha'
+            name = "$appVersion"
             desc = 'Ares framework'
             released  = new Date()
             vcsTag = '0.5.0'
@@ -72,26 +74,12 @@ bintray {
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-task sourceJar(type: Jar) {
-    classifier "sources"
-}
 
-publishing {
-    publications {
-        MyPublication(MavenPublication) {
-            from components.java
-            groupId 'com.github.tgiachi'
-            artifactId 'aresframework'
-            version '0.5-Alpha'
-            artifact sourceJar // Publish the output of the sourceJar task
-            artifact 'my-file-name.jar' // Publish a file created outside of the build
-            artifact source: sourceJar, classifier: 'src', extension: 'zip'
-        }
-    }
-}
 
 group="com.github.aresframework"
 version="0.5.0-Alpha"
+
+
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -113,6 +101,15 @@ allprojects {
 
 
         testCompile "org.testng:testng:$testNgVersion"
+    }
+
+    publishing {
+        repositories {
+            maven {
+                // change to point to your repo, e.g. http://my.org/repo
+                url "$rootDir/build/repo"
+            }
+        }
     }
 }
 

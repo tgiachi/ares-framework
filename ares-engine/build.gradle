@@ -4,6 +4,26 @@ plugins {
 }
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId "$appGroup"
+            artifactId 'aresframework-engine'
+            version "$appVersion"
+
+            from components.java
+            artifact sourceJar // Publish the output of the sourceJar task
+
+            artifact source: sourceJar, classifier: 'src', extension: 'zip'
+        }
+    }
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {

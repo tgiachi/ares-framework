@@ -1,5 +1,26 @@
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId "$appGroup"
+            artifactId 'aresframework-api'
+            version "$appVersion"
+
+            from components.java
+            artifact sourceJar // Publish the output of the sourceJar task
+
+            artifact source: sourceJar, classifier: 'src', extension: 'zip'
+        }
+    }
+}
+
 
 
 repositories {
