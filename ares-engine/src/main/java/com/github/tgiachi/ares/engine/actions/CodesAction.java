@@ -20,14 +20,14 @@ public class CodesAction implements IAresAction
     @MapRequest(path = "/404.html")
     public AresViewBag do404(DataModel model)
     {
-        return new AresViewBag("/codes/404.tpl", model);
+        return new AresViewBag("/codes/404.ftl", model);
     }
 
     @AresCodeResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
     @MapRequest(path = "/error.html")
     public AresViewBag doError(DataModel model)
     {
-        return new AresViewBag("/codes/error.tpl",model);
+        return new AresViewBag("/codes/error.ftl",model);
     }
 
 

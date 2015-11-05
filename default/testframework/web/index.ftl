@@ -1,4 +1,4 @@
-<#include "includes/header.tpl">
+<#include "includes/header.ftl">
 
 <div class="container">
 

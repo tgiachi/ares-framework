@@ -31,5 +31,9 @@ dependencies {
     compile "com.mchange:c3p0:$c3p0Version"
     compile "org.postgresql:postgresql:$postgresVersion"
     compile "com.h2database:h2:$h2Version"
+    compile "org.hibernate:hibernate-entitymanager:$entityManagerVersion"
+    compile "org.hibernate:hibernate-c3p0:$entityManagerVersion"
+
+
 
 }

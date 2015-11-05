@@ -11,6 +11,7 @@ import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
+import com.github.tgiachi.ares.interfaces.database.IOrmManager;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispatcher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.processors.IAresProcessor;
@@ -473,6 +474,13 @@ public class DefaultDispatcher implements IAresDispatcher {
                 GetSessionParam annotation = c.getAnnotation(GetSessionParam.class);
 
                 invokerParams.add(getSessionValue(request.getSession(), annotation.value()));
+            }
+            else if (c.getType().equals(IOrmManager.class))
+            {
+                if (engine.getDatabaseManager() instanceof IOrmManager)
+                    invokerParams.add(engine.getDatabaseManager());
+                else
+                    invokerParams.add(null);
             }
 
         }

@@ -1,0 +1,4 @@
+<hibernate-configuration>
+    <session-factory>
+        </session-factory>
+</hibernate-configuration>

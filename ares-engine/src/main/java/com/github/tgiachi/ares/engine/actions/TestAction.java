@@ -8,9 +8,11 @@ import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.data.template.JsonResult;
 import com.github.tgiachi.ares.data.template.XmlResult;
 import com.github.tgiachi.ares.data.template.YamlResult;
+import com.github.tgiachi.ares.database.entities.TestEntity;
 import com.github.tgiachi.ares.engine.persistence.TableInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
+import com.github.tgiachi.ares.interfaces.database.IOrmManager;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 
@@ -40,7 +43,7 @@ public class TestAction implements IAresAction {
 
         model.addAttribute("title", "Today is " + new Date().toString());
 
-        return new AresViewBag("index.tpl", model);
+        return new AresViewBag("index.ftl", model);
     }
 
     @MapRequest(path = "/api/data.json", type = RequestType.GET)
@@ -80,7 +83,7 @@ public class TestAction implements IAresAction {
             model.addAttribute("mapped", results);
             model.addAttribute("query_execution_time", query.getExecutionTime());
 
-            return new AresViewBag("testdatabase.tpl", model);
+            return new AresViewBag("testdatabase.ftl", model);
         }
         catch (Exception ex)
         {
@@ -94,7 +97,7 @@ public class TestAction implements IAresAction {
     public AresViewBag doTestInjectParam(DataModel model, @GetParam("q") String q)
     {
         model.addAttribute("param", q);
-        return new AresViewBag("index_param.tpl", model);
+        return new AresViewBag("index_param.ftl", model);
     }
 
     @MapRequest(path = "/make_error.html", type = RequestType.GET)
@@ -108,13 +111,37 @@ public class TestAction implements IAresAction {
     {
         model.addAttribute("generation_stats", SessionManager.getGenerationStats().stream().filter(s -> !s.getLog().equals("debug.tpl")).collect(Collectors.toList()));
         model.addAttribute("session_prev", prevUrl);
-        return new AresViewBag("debug.tpl", model);
+        return new AresViewBag("debug.ftl", model);
     }
 
     @MapRequest(path = "/test_view.html", type = RequestType.GET)
     public AresViewBag doTestAutomaticView(DataModel model)
     {
         model.addAttribute("test", 123);
+
+        return new AresViewBag(model);
+    }
+
+    @MapRequest(path = "/test_orm.html", type = RequestType.GET)
+    public AresViewBag doPersistenceTest(DataModel model, IOrmManager ormManager)
+    {
+        List<?> entities = ormManager.executeQuery("from TestEntity");
+
+        if (entities.size() == 0) {
+            for (int i = 0; i < 300; i++) {
+                TestEntity entity = new TestEntity();
+                entity.setField1("Index : " + i);
+                entity.setField2(new Random().nextInt());
+                entity.setField3(new Random().nextLong());
+
+                ormManager.persist(entity);
+
+            }
+
+            entities = ormManager.executeQuery("from TestEntity");
+        }
+
+        model.addAttribute("result", entities );
 
         return new AresViewBag(model);
     }

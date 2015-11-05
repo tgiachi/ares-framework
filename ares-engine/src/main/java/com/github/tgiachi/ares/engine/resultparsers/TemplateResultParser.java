@@ -31,7 +31,7 @@ public class TemplateResultParser extends BaseResultParser {
         if (viewBag.getViewPage() == null)
         {
             AresAction ann = invoker.getClass().getAnnotation(AresAction.class);
-            viewBag.setViewPage(String.format("%s%s%s.tpl", ann.name(), File.separator, method.getName()));
+            viewBag.setViewPage(String.format("%s%s%s.ftl", ann.name(), File.separator, method.getName()));
 
             log(Level.INFO, "Automatic set view page to correct view file %s", viewBag.getViewPage());
         }

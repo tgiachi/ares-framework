@@ -86,7 +86,7 @@ public class ConfigManager {
         return false;
     }
 
-    private void createDemoAresConfig() throws IOException
+    private void createDemoAresConfig() throws Exception
     {
         AresConfig config = new AresConfig();
 
@@ -98,7 +98,7 @@ public class ConfigManager {
 
         String json = JsonSerializer.Serialize(config);
 
-        FileUtils.writeStringToFile(new File(SessionManager.getDirectoriesConfig().getAppConfigDirectory() + EngineConst.DEFAULT_CONFIG_FILENAME), json);
+        saveFileIfNotExists(SessionManager.getDirectoriesConfig().getAppConfigDirectory() + EngineConst.DEFAULT_CONFIG_FILENAME, json);
     }
 
     private void createDemoDatabaseConfig() throws Exception
@@ -126,8 +126,18 @@ public class ConfigManager {
         String json = JsonSerializer.Serialize(config);
 
 
-        FileUtils.writeStringToFile(new File(SessionManager.getDirectoriesConfig().getAppDatabaseDirectory() + EngineConst.DEFAULT_DB_CONFIG_FILENAME), json);
 
+        saveFileIfNotExists(SessionManager.getDirectoriesConfig().getAppDatabaseDirectory() + EngineConst.DEFAULT_DB_CONFIG_FILENAME, json);
+
+    }
+
+    private void saveFileIfNotExists(String filename, String data) throws Exception
+    {
+        if (!new File(filename).exists())
+        {
+            FileUtils.writeStringToFile(new File(filename), data);
+
+        }
     }
 
     private void createDemoRoutesConfig() throws Exception
@@ -139,7 +149,7 @@ public class ConfigManager {
         String json = JsonSerializer.Serialize(config);
 
 
-        FileUtils.writeStringToFile(new File(SessionManager.getDirectoriesConfig().getAppRoutesDirectory() + EngineConst.DEFAULT_ROUTES_CONFIG_FILENAME), json);
+        saveFileIfNotExists(SessionManager.getDirectoriesConfig().getAppRoutesDirectory() + EngineConst.DEFAULT_ROUTES_CONFIG_FILENAME, json);
 
 
     }

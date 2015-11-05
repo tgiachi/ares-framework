@@ -48,6 +48,10 @@ dependencies {
     compile "org.yaml:snakeyaml:$yamlVersion"
     compile "com.asual.lesscss:lesscss-engine:$lessEngine"
 
+    compile "commons-io:commons-io:$commonsIoVersion"
+    compile "com.google.guava:guava:$guavaVersion"
+
+    compile "io.reactivex:rxjava:$rxVersion"
 
 
 }

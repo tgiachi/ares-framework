@@ -125,7 +125,7 @@ public class FileSystemManager implements IFileSystemManager {
 
         TemplateResult result = new TemplateResult();
 
-        if (filename.endsWith(".tpl")) {
+        if (filename.endsWith(".ftl")) {
 
 
             log(Level.DEBUG, "Getting template %s", filename);

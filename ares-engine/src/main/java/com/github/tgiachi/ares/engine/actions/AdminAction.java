@@ -17,6 +17,6 @@ public class AdminAction implements IAresAction {
     @MapRequest(path = "/")
     public AresViewBag doHomepage(DataModel model)
     {
-        return new AresViewBag("admin/index.tpl", model);
+        return new AresViewBag("admin/index.ftl", model);
     }
 }
