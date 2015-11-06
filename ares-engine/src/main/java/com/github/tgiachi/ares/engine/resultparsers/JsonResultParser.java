@@ -18,8 +18,12 @@ public class JsonResultParser  extends BaseResultParser{
     public ServletResult parse(DataModel model, Method method, Object invoker, Object[] params) throws Exception {
 
         JsonResult result =(JsonResult) method.invoke(invoker, params);
+        ServletResult servletResult = new ServletResult("application/json", JsonSerializer.Serialize(result.getData()).getBytes());
 
-        return new ServletResult("application/json", JsonSerializer.Serialize(result.getData()).getBytes());
+        servletResult.setCookies(result.getCookies());
+        servletResult.setHeaders(result.getHeaders());
+
+        return servletResult;
 
     }
 }

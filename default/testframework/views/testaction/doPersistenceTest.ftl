@@ -1,6 +1,5 @@
-<body>
-  <div class="container">
-    This is test of ORM!
+<#include "*/includes/header.ftl">
+
 
     <#list result as entity>
       <div>

@@ -2,7 +2,11 @@ package com.github.tgiachi.ares.data.actions;
 
 import lombok.Data;
 
+import javax.servlet.http.Cookie;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Il risultato che andra' a stampante sullo stream
@@ -22,6 +26,10 @@ public class ServletResult implements Serializable {
     {
         this.result = result;
     }
+
+    private List<Cookie> cookies = new ArrayList<>();
+
+    private HashMap<String, String> headers = new HashMap<>();
 
     public ServletResult()
     {

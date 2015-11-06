@@ -1,5 +1,6 @@
 package com.github.tgiachi.ares.data.template;
 
+import com.github.tgiachi.ares.data.template.base.BaseResult;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,12 +9,12 @@ import java.io.Serializable;
  * Classe per restituire Json
  */
 @Data
-public class JsonResult implements Serializable {
+public class JsonResult extends BaseResult {
 
 
-    private Serializable data;
+    private Object data;
 
-    public JsonResult(Serializable data)
+    public JsonResult(Object data)
     {
         this.data = data;
     }

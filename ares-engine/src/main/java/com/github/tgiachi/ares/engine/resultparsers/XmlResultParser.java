@@ -19,7 +19,12 @@ public class XmlResultParser extends BaseResultParser {
 
         XmlResult result =(XmlResult) method.invoke(invoker, params);
 
-        return new ServletResult("application/xml", XmlSerializer.toXml(result.getData()).getBytes());
+        ServletResult servletResult = new ServletResult("application/xml", XmlSerializer.toXml(result.getData()).getBytes());
+
+        servletResult.setCookies(result.getCookies());
+        servletResult.setHeaders(result.getHeaders());
+
+        return servletResult;
 
     }
 }

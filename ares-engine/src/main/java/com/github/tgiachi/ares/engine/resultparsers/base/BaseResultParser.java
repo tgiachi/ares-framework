@@ -34,8 +34,11 @@ public class BaseResultParser implements IResultParser {
         return null;
     }
 
+
+
     protected void log(Level level, String text, Object ... args)
     {
         logger.log(level, String.format(text, args));
     }
+
 }

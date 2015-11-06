@@ -90,6 +90,7 @@ public class ConfigManager {
     {
         AresConfig config = new AresConfig();
 
+
         config.addEntry("myVar", "value");
 
         config.getRoutes().getStaticRoutes().add(new AresStaticRouteEntry("/imgs/.*", "imgs/", ""));

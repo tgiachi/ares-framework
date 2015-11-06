@@ -33,7 +33,7 @@ public class AuthorizeAction implements IAresAction {
     @MapRequest(path = "/login")
     public AresViewBag doHomepage(DataModel model)
     {
-        return new AresViewBag("/auth/login.tpl", model);
+        return new AresViewBag("/auth/login.ftl", model);
     }
 
     @MapRequest(path = "/login_post", type = RequestType.POST)

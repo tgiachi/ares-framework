@@ -4,7 +4,7 @@
 
   <div class="page-header">
     <h2>Ares Framework - Demo </h2>
-    <h4> environment: ${environment} </h4>
+    <h4> environment: <span class="label label-info"> ${environment} </span> </h4>
   </div>
 
   <div class="panel panel-success">
@@ -15,11 +15,16 @@
   <li role="presentation"> <a href="page_random.html"> Test <kbd>404</kbd> Page Not found </a> </li>
   <li role="presentation"> <a href="make_error.html"> Test <kbd>500</kbd> Internal server Error </a> </li>
   <li role="presentation"> <a href="?myParam=3&secondParam=2"> Test page params </a> </li>
+  <li role="presentation"> <a href="${context_path}testcookie.html"> Test cookie </a> </li>
+  <li role="presentation"> <a href="${context_path}testheader.html"> Test headers </a> </li>
   <li role="presentation"> <a href="${context_path}debug.html"> View debug </a> </li>
   <li role="presentation"> <a href="${context_path}api/data.json"> Result as <kbd>JSON</kbd> data </a> </li>
   <li role="presentation"> <a href="${context_path}api/data.xml"> Result as <kbd>XML</kbd> data </a> </li>
   <li role="presentation"> <a href="${context_path}api/data.yaml"> Result as <kbd>YAML</kbd> data </a> </li>
   <li role="presentation"> <a href="${context_path}admin/"> Test secure area </a> </li>
+  <li role="presentation"> <a href="${context_path}debug/sessionlist.html"> View sessions list </a> </li>
+
+
 </ul>
 </div>
 </div>

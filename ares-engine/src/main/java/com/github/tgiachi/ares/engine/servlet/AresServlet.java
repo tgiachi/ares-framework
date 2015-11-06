@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -81,14 +82,17 @@ public class AresServlet extends HttpServlet {
         ServletResult result =  SessionManager.getEngine().getDispatcher().dispatch(request_url, getRequestTypeByString(req.getMethod()), parseHeaders(req), parseQueryString(req), req);
 
 
+
         switch (result.getReturnCode())
         {
             case HttpServletResponse.SC_OK:
+                processCookiesAndHeaders(resp,result);
                 resp.setContentType(result.getMimeType());
                 resp.setContentLength(result.getResult().length);
                 IOUtils.write(result.getResult(), resp.getOutputStream());
                 break;
             case HttpServletResponse.SC_MOVED_PERMANENTLY:
+                processCookiesAndHeaders(resp,result);
                 resp.sendRedirect(new String(result.getResult()));
                 break;
             default:
@@ -98,6 +102,12 @@ public class AresServlet extends HttpServlet {
 
         }
 
+    }
+
+    private void processCookiesAndHeaders(HttpServletResponse response, ServletResult result)
+    {
+        result.getCookies().stream().forEach(s -> response.addCookie(s));
+        result.getHeaders().keySet().stream().forEach(s -> response.addHeader(s, result.getHeaders().get(s)));
     }
 
     protected HashMap<String, String> parseQueryString(HttpServletRequest request)

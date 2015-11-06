@@ -7,6 +7,7 @@ import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.data.config.AresStaticRouteEntry;
 import com.github.tgiachi.ares.data.db.AresQuery;
+import com.github.tgiachi.ares.data.debug.DebugSessionNavigationInfo;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
@@ -19,9 +20,12 @@ import com.github.tgiachi.ares.interfaces.resultsparsers.IResultParser;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.google.common.base.Strings;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -307,6 +311,9 @@ public class DefaultDispatcher implements IAresDispatcher {
         boolean actionExecuted = false;
 
 
+
+        SessionManager.debug(this, 200, request ,Level.INFO, action, type, "Requesting url: %s", action);
+
         if (aresAction != null)
         {
             DataModel model = prepareDefaultDatamodel(action, type,headers,values,request);
@@ -315,18 +322,29 @@ public class DefaultDispatcher implements IAresDispatcher {
             {
                 servletResult = callActionMethod(aresAction, action, type, request, model, values);
 
-                if (servletResult != null)
+
+                if (servletResult != null) {
                     actionExecuted = true;
+
+                    if (servletResult.getResult() != null)
+                    SessionManager.debug(this, servletResult.getReturnCode(), request, Level.INFO, action, type, "Action found with total result size %s ", FileUtils.byteCountToDisplaySize(servletResult.getResult().length));
+
+                }
             }
             else
             {
                 if (!getSessionValue(request.getSession(), EngineConst.SESSION_USER_AUTHENTICATED).equals("true"))
                 {
                     servletResult = new ServletResult(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                    servletResult.setResult(mapperRouter.resolveActionString(SessionManager.getConfig().getAuthMap().getLoginAction()).getFullUrl().getBytes());
+
                     setSessionValue(request.getSession(), EngineConst.SESSION_PRE_AUTH, action);
-                    servletResult.setResult("http://localhost:8080/auth/login".getBytes());
+
+                    SessionManager.debug(this,servletResult.getReturnCode(), request, Level.INFO, action, type, "Session need auth for navitate to url %s", action);
 
                     actionExecuted = true;
+
+
                 }
                 else
                 {
@@ -359,7 +377,13 @@ public class DefaultDispatcher implements IAresDispatcher {
 
         if (servletResult.getException() != null)
         {
+            if (servletResult != null)
+                SessionManager.debug(this, servletResult.getReturnCode(),request, Level.ERROR, action, type, "User server error <code>%s</code>", servletResult.getException());
+
             servletResult = resolveCodes(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, servletResult, action, type,headers,values,request);
+
+
+
         }
 
         if (!actionExecuted)
@@ -378,6 +402,26 @@ public class DefaultDispatcher implements IAresDispatcher {
 
         return servletResult;
 
+    }
+
+    private String getLoginUrl()
+    {
+        IAresAction action = mapperRouter.getActionByName("authorize");
+        if (action != null)
+        {
+            for (Method m : action.getClass().getDeclaredMethods())
+            {
+                if (m.isAnnotationPresent(MapRequest.class))
+                {
+                    MapRequest mapRequest = m.getAnnotation(MapRequest.class);
+
+                   // if (mapRequest.)
+                }
+            }
+
+        }
+
+        return "";
     }
 
     private String getSessionValue(HttpSession session, String key)
@@ -419,9 +463,15 @@ public class DefaultDispatcher implements IAresDispatcher {
                 IResultParser parser = mResultsParsers.get(resultKey.get());
                 engine.getContainer().resolveWires(parser);
 
+                SessionManager.debug(this, 200, request,Level.INFO, action, type, "Found parser => %s", parser.getClass().getName());
+
                 try
                 {
                     ServletResult result = parser.parse(model, m, aresAction, invokerParams.toArray());
+
+                    if (result.getResult() != null)
+                        SessionManager.debug(parser, 200, request,Level.INFO, action, type, "Result is %s and Mime type: %s",FileUtils.byteCountToDisplaySize(result.getResult().length) , result.getMimeType());
+
 
                     setSessionValue(request.getSession(), EngineConst.SESSION_PREV_URL, action);
 
@@ -468,6 +518,26 @@ public class DefaultDispatcher implements IAresDispatcher {
                     invokerParams.add(values.get(annotation.value()));
                 else
                     invokerParams.add("");
+            }
+            else if (c.isAnnotationPresent(GetCookie.class))
+            {
+               GetCookie annotation = c.getAnnotation(GetCookie.class);
+                boolean found = false;
+
+                for (Cookie cookie : request.getCookies())
+                {
+                    if (cookie.getName().equals(annotation.value()))
+                    {
+                        invokerParams.add(cookie);
+                        found = true;
+                        break;
+                    }
+
+
+                }
+
+                if (!found)
+                    invokerParams.add(null);
             }
             else if (c.isAnnotationPresent(GetSessionParam.class))
             {
@@ -543,4 +613,6 @@ public class DefaultDispatcher implements IAresDispatcher {
     {
         logger.log(level, String.format(text, args));
     }
+
+
 }

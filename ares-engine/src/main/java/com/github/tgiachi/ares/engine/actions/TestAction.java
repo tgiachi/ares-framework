@@ -10,6 +10,7 @@ import com.github.tgiachi.ares.data.template.XmlResult;
 import com.github.tgiachi.ares.data.template.YamlResult;
 import com.github.tgiachi.ares.database.entities.TestEntity;
 import com.github.tgiachi.ares.engine.persistence.TableInfo;
+import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
 import com.github.tgiachi.ares.interfaces.database.IOrmManager;
@@ -17,6 +18,7 @@ import com.github.tgiachi.ares.sessions.SessionManager;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,10 +102,34 @@ public class TestAction implements IAresAction {
         return new AresViewBag("index_param.ftl", model);
     }
 
+    @MapRequest(path = "/testcookie.html", type = RequestType.GET)
+    public AresViewBag doTestCookie(DataModel model, @GetCookie("JSESSIONID") Cookie jSessionCookie)
+    {
+
+        model.addAttribute("cookie", jSessionCookie.getValue());
+        AresViewBag vb = new AresViewBag(model);
+        Cookie cookie = new Cookie("test_cookie", "test1234");
+        cookie.setMaxAge(100000);
+        cookie.setSecure(false );
+        vb.getCookies().add(cookie);
+        return vb;
+
+    }
+
+    @MapRequest(path = "/testheader.html", type = RequestType.GET)
+    public AresViewBag doTestHeader(DataModel model)
+    {
+        AresViewBag vb = new AresViewBag(model);
+
+        vb.getHeaders().put("X-Powered-by", AppInfo.AppName + " v"+AppInfo.AppVersion);
+
+        return vb;
+    }
+
     @MapRequest(path = "/make_error.html", type = RequestType.GET)
     public AresViewBag doTestError(DataModel model)
     {
-        return new AresViewBag("make_error.tpl", model);
+        return new AresViewBag("make_error.ftl", model);
     }
 
     @MapRequest(path = "/debug.html", type = RequestType.GET)
@@ -144,6 +170,52 @@ public class TestAction implements IAresAction {
         model.addAttribute("result", entities );
 
         return new AresViewBag(model);
+    }
+
+    @MapRequest(path = "/test_orm.json", type = RequestType.GET)
+    public JsonResult doPersistenceTestJson(IOrmManager ormManager)
+    {
+        List<?> entities = ormManager.executeQuery("from TestEntity");
+
+        if (entities.size() == 0) {
+            for (int i = 0; i < 300; i++) {
+                TestEntity entity = new TestEntity();
+                entity.setField1("Index : " + i);
+                entity.setField2(new Random().nextInt());
+                entity.setField3(new Random().nextLong());
+
+                ormManager.persist(entity);
+
+            }
+
+            entities = ormManager.executeQuery("from TestEntity");
+        }
+
+
+        return new JsonResult(entities);
+    }
+
+    @MapRequest(path = "/test_orm.xml", type = RequestType.GET)
+    public XmlResult doPersistenceTestXml(IOrmManager ormManager)
+    {
+        List<?> entities = ormManager.executeQuery("from TestEntity");
+
+        if (entities.size() == 0) {
+            for (int i = 0; i < 300; i++) {
+                TestEntity entity = new TestEntity();
+                entity.setField1("Index : " + i);
+                entity.setField2(new Random().nextInt());
+                entity.setField3(new Random().nextLong());
+
+                ormManager.persist(entity);
+
+            }
+
+            entities = ormManager.executeQuery("from TestEntity");
+        }
+
+
+        return new XmlResult(entities);
     }
 
     @MapRequest(path = "/debug_clear_logs.json", type = RequestType.GET)

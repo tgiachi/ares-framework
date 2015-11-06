@@ -28,6 +28,9 @@ public class TemplateResultParser extends BaseResultParser {
         Stopwatch stopwatch = Stopwatch.createStarted();
         AresViewBag viewBag =  (AresViewBag) method.invoke(invoker, params);
 
+
+
+
         if (viewBag.getViewPage() == null)
         {
             AresAction ann = invoker.getClass().getAnnotation(AresAction.class);
@@ -38,11 +41,20 @@ public class TemplateResultParser extends BaseResultParser {
 
 
         TemplateResult templateResult = getEngine().getFileSystemManager().getTemplate(viewBag.getViewPage(), viewBag.getModel());
+
+
+
         stopwatch.stop();
 
 
         if (!templateResult.isError())
-            return new ServletResult(generateDebugInfos(templateResult.getResult(), stopwatch).getBytes());
+        {
+            ServletResult result = new ServletResult(generateDebugInfos(templateResult.getResult(), stopwatch).getBytes());
+
+            result.setCookies(viewBag.getCookies());
+            result.setHeaders(viewBag.getHeaders());
+            return result;
+        }
         else
         {
             ServletResult result = new ServletResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

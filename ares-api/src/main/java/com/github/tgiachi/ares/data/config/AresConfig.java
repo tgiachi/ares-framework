@@ -24,6 +24,8 @@ public class AresConfig implements Serializable
 
     private AresStaticRoute routes = new AresStaticRoute();
 
+    private AresAuthMap authMap = new AresAuthMap();
+
     /**
      * Funzione per l'aggiunta di una entry nel config
      */

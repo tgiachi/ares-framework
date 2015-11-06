@@ -1,5 +1,6 @@
 package com.github.tgiachi.ares.data.template;
 
+import com.github.tgiachi.ares.data.template.base.BaseResult;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,7 +9,8 @@ import java.io.Serializable;
  * Esegue il redirect ad una pagina
  */
 @Data
-public class RedirectResult implements Serializable
+public class RedirectResult extends BaseResult
+
 {
     private String location;
 
