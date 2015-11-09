@@ -23,7 +23,7 @@
   <li role="presentation"> <a href="${context_path}api/data.yaml"> Result as <kbd>YAML</kbd> data </a> </li>
   <li role="presentation"> <a href="${context_path}admin/"> Test secure area </a> </li>
   <li role="presentation"> <a href="${context_path}debug/sessionlist.html"> View sessions list </a> </li>
-
+  <li role="presentation"> <a href="${templateUtils.getAction('testaction.doWebSocketClient')}"> Test Web socket </a> </li>
 
 </ul>
 </div>

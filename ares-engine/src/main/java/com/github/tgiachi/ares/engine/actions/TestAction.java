@@ -225,6 +225,21 @@ public class TestAction implements IAresAction {
         return new JsonResult("OK");
     }
 
+
+    @MapRequest(path = "/test_ws.html")
+    public AresViewBag doWebSocketClient(DataModel dataModel)
+    {
+        return new AresViewBag(dataModel);
+    }
+
+    @MapRequest(path = "/view_action_map.html", type = RequestType.GET)
+    public AresViewBag doViewMap(DataModel model)
+    {
+        model.addAttribute("map", SessionManager.getEngine().getDispatcher().getActionsMap());
+
+        return  new AresViewBag(model);
+    }
+
     public JsonResult doAbout()
     {
         return new JsonResult("Ares framework");

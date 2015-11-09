@@ -33,6 +33,8 @@ dependencies {
 
     compile "commons-io:commons-io:$commonsIoVersion"
     compile "javax.servlet:javax.servlet-api:$javaxServletVersion"
+    compile 'javax.websocket:javax.websocket-api:1.1'
+    compile 'javax.websocket:javax.websocket-client-api:1.1'
     compile "com.google.guava:guava:$guavaVersion"
     compile "org.reflections:reflections:$reflectionVersion"
     compile "io.reactivex:rxjava:$rxVersion"
