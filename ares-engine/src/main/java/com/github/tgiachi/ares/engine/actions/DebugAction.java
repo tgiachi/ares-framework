@@ -91,4 +91,13 @@ public class DebugAction implements IAresAction {
         return new AresViewBag(model);
     }
 
+    @MapRequest(path = "/action_list.html")
+    public AresViewBag doActionList(DataModel model)
+    {
+
+        model.addAttribute("map", SessionManager.getEngine().getDispatcher().getActionsMap());
+
+        return new AresViewBag(model);
+    }
+
 }

@@ -51,7 +51,7 @@ public class BaseResourceProcessor implements IAresProcessor {
 
     protected void addDirectoryWatch(String directory)
     {
-        try
+      try
         {
             if (mWatchers.get(directory) == null) {
 

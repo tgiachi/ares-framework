@@ -1,3 +1,4 @@
+<#include "functions.ftl">
 <!DOCTYPE HTML>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

@@ -23,6 +23,11 @@ import java.util.concurrent.TimeUnit;
 @AresResultParser(AresViewBag.class)
 public class TemplateResultParser extends BaseResultParser {
 
+    public static String getAction(String action)
+    {
+       return SessionManager.getEngine().getDispatcher().getAction(action);
+    }
+
     @Override
     public ServletResult parse(DataModel model, Method method, Object invoker, Object[] params) throws Exception {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -38,6 +43,8 @@ public class TemplateResultParser extends BaseResultParser {
 
             log(Level.INFO, "Automatic set view page to correct view file %s", viewBag.getViewPage());
         }
+
+        viewBag.getModel().addAttribute("templateUtils", this);
 
 
         TemplateResult templateResult = getEngine().getFileSystemManager().getTemplate(viewBag.getViewPage(), viewBag.getModel());

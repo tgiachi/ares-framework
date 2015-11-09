@@ -58,6 +58,35 @@ public class UrlMapperRouter {
         }
     }
 
+    public HashMap<String, ActionInfo> getActionMap()
+    {
+
+        HashMap<String, ActionInfo> resultHash = new HashMap<>();
+
+        for (String action : mActionStrings.keySet()) {
+            IAresAction aresAction = mActionStrings.get(action);
+
+            for (Method m : aresAction.getClass().getDeclaredMethods()) {
+
+                if (m.isAnnotationPresent(MapRequest.class)) {
+                    ActionInfo result = new ActionInfo();
+                    result.setMethod(m);
+                    result.setMapRequest(m.getAnnotation(MapRequest.class));
+                    result.setAction(aresAction);
+                    result.setActionAnnotation(aresAction.getClass().getAnnotation(AresAction.class));
+                    result.setFullUrl(result.getActionAnnotation().baseUrl() + result.getMapRequest().path());
+
+                    resultHash.put(action, result);
+
+
+                }
+
+            }
+        }
+
+            return resultHash;
+    }
+
     public ActionInfo resolveActionString(String actionString)
     {
 

@@ -3,15 +3,16 @@ package com.github.tgiachi.ares.engine.dispatcher;
 import com.github.tgiachi.ares.annotations.actions.*;
 import com.github.tgiachi.ares.annotations.container.AresResourcesProcessor;
 import com.github.tgiachi.ares.annotations.resultsparsers.AresResultParser;
+import com.github.tgiachi.ares.chain.manager.HeaderChainProcessor;
 import com.github.tgiachi.ares.data.actions.ServletResult;
 import com.github.tgiachi.ares.data.config.AresRouteEntry;
 import com.github.tgiachi.ares.data.config.AresStaticRouteEntry;
 import com.github.tgiachi.ares.data.db.AresQuery;
-import com.github.tgiachi.ares.data.debug.DebugSessionNavigationInfo;
 import com.github.tgiachi.ares.data.template.DataModel;
 import com.github.tgiachi.ares.engine.utils.AppInfo;
 import com.github.tgiachi.ares.engine.utils.EngineConst;
 import com.github.tgiachi.ares.interfaces.actions.IAresAction;
+import com.github.tgiachi.ares.interfaces.chain.IChainProcessor;
 import com.github.tgiachi.ares.interfaces.database.IOrmManager;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispatcher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
@@ -21,7 +22,6 @@ import com.github.tgiachi.ares.sessions.SessionManager;
 import com.github.tgiachi.ares.utils.ReflectionUtils;
 import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -57,6 +57,8 @@ public class DefaultDispatcher implements IAresDispatcher {
 
     private HashMap<Integer, IAresAction> mCodesResultMethod = new HashMap<>();
 
+    private HeaderChainProcessor headerChainProcessor;
+
     public DefaultDispatcher(IAresEngine engine)
     {
         this.engine = engine;
@@ -72,6 +74,45 @@ public class DefaultDispatcher implements IAresDispatcher {
 
         buildStaticMappers();
 
+        buildHeaderChainProcessors();
+
+    }
+
+    @Override
+    public String getAction(String action) {
+        ActionInfo actionInfo = mapperRouter.resolveActionString(action);
+
+        return actionInfo.getFullUrl();
+    }
+
+    @Override
+    public HashMap<String, ActionInfo> getActionsMap()
+    {
+        return mapperRouter.getActionMap();
+    }
+    private void buildHeaderChainProcessors() {
+        try
+        {
+            headerChainProcessor = new HeaderChainProcessor();
+            Set<Class<?>> classes = ReflectionUtils.getAnnotation(HeaderProcessor.class);
+
+            log(Level.INFO, "Found %s header processors", classes.size());
+
+            for (Class<?> classz : classes)
+            {
+
+                IChainProcessor chainProcessor = (IChainProcessor) classz.newInstance();
+                engine.getContainer().resolveWires(chainProcessor);
+                headerChainProcessor.addToChain(chainProcessor);
+
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 
     private void buildConfigRoutes() {
@@ -468,6 +509,7 @@ public class DefaultDispatcher implements IAresDispatcher {
                 try
                 {
                     ServletResult result = parser.parse(model, m, aresAction, invokerParams.toArray());
+                    headerChainProcessor.executeAfterChainProcessor(result);
 
                     if (result.getResult() != null)
                         SessionManager.debug(parser, 200, request,Level.INFO, action, type, "Result is %s and Mime type: %s",FileUtils.byteCountToDisplaySize(result.getResult().length) , result.getMimeType());
