@@ -5,8 +5,10 @@ import com.github.tgiachi.ares.data.websocket.AresWBMessage;
 import com.github.tgiachi.ares.engine.servlet.websocket.encoders.AresMessageDecoder;
 import com.github.tgiachi.ares.engine.servlet.websocket.encoders.AresMessageEncoder;
 import com.github.tgiachi.ares.sessions.SessionManager;
+import com.google.common.base.Strings;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -19,10 +21,11 @@ import java.util.*;
  * Classe base per creare i websockets
  */
 
-@ServerEndpoint(value = "/ws", decoders = {AresMessageDecoder.class}, encoders = {AresMessageEncoder.class})
+
 public class AresWebSocket  {
 
     @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
     private String queueName;
 
 
@@ -44,14 +47,49 @@ public class AresWebSocket  {
         String outputQueue = "OUT_MESSAGES_"+queueName.toUpperCase();
 
         SessionManager.subscribe(inputQueue, o -> {});
-        SessionManager.subscribe(outputQueue,o -> {});
+        SessionManager.subscribe(outputQueue,this::processQueueMessage);
 
         log(Level.INFO, "Subscribing %s and %s", inputQueue, outputQueue);
 
     }
 
-    private void processQueueMessage(AresWBMessage message)
+    private void processQueueMessage(Object message)
     {
+        AresWBMessage aresWBMessage = (AresWBMessage)message;
+
+        log(Level.DEBUG, "Process message uid %s for source %s", aresWBMessage.getUid(), aresWBMessage.getSource());
+
+        if (Strings.isNullOrEmpty(aresWBMessage.getDestination()))
+        {
+            broadcast(aresWBMessage);
+        }
+        else
+        {
+            try
+            {
+                sendMessage(getSessionById(aresWBMessage.getDestination()), aresWBMessage);
+            }
+            catch (Exception ex)
+            {
+                log(Level.FATAL, "Error during send message => %s", ex.getMessage());
+            }
+
+        }
+
+    }
+
+    private Session getSessionById(String uuid)
+    {
+        if (sessions.get(uuid) != null)
+            return sessions.get(uuid);
+
+        return null;
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable)
+    {
+        log(Level.FATAL, "Error in session %s => %s", session.getId(), throwable.getMessage());
 
     }
 
@@ -77,13 +115,18 @@ public class AresWebSocket  {
     {
         try
         {
-            broadcast(message);
+            processOnMessage(message, session);
 
         }
         catch (Exception ex)
         {
             log(Level.FATAL, "Error receiving message from session %s => %s", session.getId(), ex.getMessage());
         }
+    }
+
+    protected void processOnMessage(final AresWBMessage message, final Session session)
+    {
+
     }
 
     public void broadcast(AresWBMessage message)

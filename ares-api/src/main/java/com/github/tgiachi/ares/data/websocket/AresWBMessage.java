@@ -4,12 +4,15 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Messaggio serializzabile per spedire al websocket
  */
 @Data
 public class AresWBMessage implements Serializable {
+
+    private String uid;
 
     private int messageId = 0;
 
@@ -37,7 +40,7 @@ public class AresWBMessage implements Serializable {
     public static AresWBMessage newMessage(int messageId)
     {
         AresWBMessage message = new AresWBMessage();
-
+        message.setUid(UUID.randomUUID().toString());
         return message.setMessageId(messageId);
 
     }
