@@ -20,6 +20,8 @@ public class AresConfig implements Serializable
 
     private String databaseManager = "com.github.tgiachi.ares.database.DatabaseManager";
 
+    private String noSqlDatabaseManager = "";
+
     private String filesystemManager = "com.github.tgiachi.ares.engine.filesystem.FileSystemManager";
 
     private AresStaticRoute routes = new AresStaticRoute();

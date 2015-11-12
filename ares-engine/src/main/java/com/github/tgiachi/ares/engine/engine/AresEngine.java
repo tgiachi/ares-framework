@@ -8,11 +8,13 @@ import com.github.tgiachi.ares.engine.container.AresContainer;
 import com.github.tgiachi.ares.engine.dispatcher.DefaultDispatcher;
 import com.github.tgiachi.ares.interfaces.container.IAresContainer;
 import com.github.tgiachi.ares.interfaces.database.IDatabaseManager;
+import com.github.tgiachi.ares.interfaces.database.INoSqlDatabaseManager;
 import com.github.tgiachi.ares.interfaces.dispacher.IAresDispatcher;
 import com.github.tgiachi.ares.interfaces.engine.IAresEngine;
 import com.github.tgiachi.ares.interfaces.fs.IFileSystemManager;
 import com.github.tgiachi.ares.sessions.SessionManager;
 import com.github.tgiachi.ares.utils.ReflectionUtils;
+import com.google.common.base.Strings;
 import lombok.Getter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -38,6 +40,8 @@ public class AresEngine implements IAresEngine {
     @Getter
     private IAresContainer container;
 
+    @Getter
+    private INoSqlDatabaseManager noSqlDatabaseManager;
 
 
 
@@ -92,6 +96,8 @@ public class AresEngine implements IAresEngine {
             loadFilesystemManager();
 
             loadDatabaseManager();
+
+            loadNoSqlDatabaseManager();
         }
         catch (Exception ex)
         {
@@ -100,18 +106,44 @@ public class AresEngine implements IAresEngine {
 
     }
 
+    private void loadNoSqlDatabaseManager()
+    {
+        try
+        {
+            if (!Strings.isNullOrEmpty(SessionManager.getConfig().getNoSqlDatabaseManager()))
+            {
+
+            }
+            else
+            {
+                log(Level.WARN, "NoSQL database manager is empty!");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            log(Level.FATAL, "Error during load NoSql Database manager => %s", ex.getMessage());
+        }
+
+    }
+
     private void loadDatabaseManager()
     {
         try
         {
-            Set<Class<?>> classes = ReflectionUtils.getAnnotation(AresDatabaseManager.class);
-            Class<?> dbManClass = classes.stream().filter(s -> s.getName().equals(SessionManager.getConfig().getDatabaseManager())).findFirst().get();
+            if (!Strings.isNullOrEmpty(SessionManager.getConfig().getDatabaseManager())) {
+                Set<Class<?>> classes = ReflectionUtils.getAnnotation(AresDatabaseManager.class);
+                Class<?> dbManClass = classes.stream().filter(s -> s.getName().equals(SessionManager.getConfig().getDatabaseManager())).findFirst().get();
 
-            databaseManager = (IDatabaseManager)dbManClass.newInstance();
-            databaseManager.start();
+                databaseManager = (IDatabaseManager) dbManClass.newInstance();
+                databaseManager.start();
 
-            log(Level.INFO, "Database manager is : %s", databaseManager.getClass().getName());
-
+                log(Level.INFO, "Database manager is : %s", databaseManager.getClass().getName());
+            }
+            else
+            {
+                log(Level.WARN, "SQL database manager is empty!");
+            }
         }
         catch (Exception ex)
         {
